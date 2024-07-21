@@ -1,4 +1,6 @@
 import React from 'react';
+import LoginForm from './LoginForm';
+import SearchButton from './SearchButton';
 
 const Header = () => {
 
@@ -15,148 +17,33 @@ const Header = () => {
                                 </div>
                                 <nav className="site-nav">
                                     <ul id="site-menu" className="site-menu">
-                                        <li><a href="/">Home</a></li>
+                                        <li><a href="/">Trang chủ</a></li>
                                         <li>
-                                            <a href="category.html">Category</a>
+                                            <a href="/shop">Shop</a>
+                                        </li>                                        
+                                        <li>
+                                            <a href="/category">Danh Mục</a>
+                                            <ul class="dropdown-menu-col-1">
+                                                <li>
+                                                    <a href="/singlepage">Signuture</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/singlepage">Bánh mì</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/singlepage">Bánh kem</a>
+                                                </li>
+                                                <li>
+                                                    <a href="/singlepage">Dụng cụ</a>
+                                                </li>
+                                            </ul>                                                                                       
                                         </li>
                                         <li>
-                                            <a href="/">Recipes</a>
-                                            <ul className="dropdown-menu-col-1">
-                                                <li>
-                                                    <a href="recipe-with-sidebar.html">Recipes With Sidebar</a>
-                                                </li>
-                                                <li>
-                                                    <a href="recipe-without-sidebar.html">Recipes Without Sidebar</a>
-                                                </li>
-                                                <li>
-                                                    <a href="single-recipe1.html">Single Recipe 1</a>
-                                                </li>
-                                                <li>
-                                                    <a href="single-recipe2.html">Single Recipe 2</a>
-                                                </li>
-                                            </ul>
+                                            <a href="/recipe">Công thức</a>
                                         </li>
-                                        <li className="possition-static hide-on-mobile-menu">
-                                            <a href="/">Pages</a>
-                                            <div className="template-mega-menu">
-                                                <div className="container">
-                                                    <div className="row">
-                                                        <div className="col-4">
-                                                            <div className="menu-ctg-title">Home</div>
-                                                            <ul className="sub-menu">
-                                                                <li>
-                                                                    <a href="index.html">
-                                                                        <i className="fas fa-home"></i>Home 1</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="index2.html">
-                                                                        <i className="fas fa-home"></i>Home 2</a>
-                                                                </li>
-                                                            </ul>
-                                                            <div className="menu-ctg-title">Recipes</div>
-                                                            <ul className="sub-menu">
-                                                                <li>
-                                                                    <a href="recipe-with-sidebar.html"><i className="fas fa-utensils"></i>Recipes
-                                                                        With Sidebar</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="recipe-without-sidebar.html"><i className="fas fa-utensils"></i>Recipes
-                                                                        Without
-                                                                        Sidebar</a>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                        <div className="col-4">
-                                                            <ul className="sub-menu">
-                                                                <li>
-                                                                    <a href="single-recipe1.html"><i className="fas fa-utensils"></i>Single
-                                                                        Recipe 1</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="single-recipe2.html"><i className="fas fa-utensils"></i>Single
-                                                                        Recipe 2</a>
-                                                                </li>
-                                                            </ul>
-                                                            <div className="menu-ctg-title">Other Pages</div>
-                                                            <ul className="sub-menu">
-                                                                <li>
-                                                                    <a href="about.html"><i className="fab fa-cloudversify"></i>About</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="author.html"><i className="fas fa-user"></i>Author</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="single-author.html"><i className="fas fa-user"></i>Author
-                                                                        Details</a>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                        <div className="col-4">
-                                                            <ul className="sub-menu">
-                                                                <li>
-                                                                    <a href="submit-recipe.html"><i className="far fa-share-square"></i>Submit
-                                                                        Recipe</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="login.html"><i className="fas fa-lock"></i>Login</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="404.html"><i className="fas fa-exclamation-triangle"></i>404
-                                                                        Error</a>
-                                                                </li>
-                                                            </ul>
-                                                            <div className="menu-ctg-title">Shop</div>
-                                                            <ul className="sub-menu">
-                                                                <li>
-                                                                    <a href="shop.html"><i className="fas fa-shopping-cart"></i>Shop</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="single-shop.html"><i className="fas fa-shopping-cart"></i>Shop
-                                                                        Details</a>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        <li>
+                                            <a href="/contact">Liên hệ</a>
                                         </li>
-                                        <li className="hide-on-desktop-menu">
-                                            <a href="/">Pages</a>
-                                            <ul className="dropdown-menu-col-1">
-                                                <li>
-                                                    <a href="about.html">About</a>
-                                                </li>
-                                                <li>
-                                                    <a href="author.html">Author</a>
-                                                </li>
-                                                <li>
-                                                    <a href="single-author.html">Author Details</a>
-                                                </li>
-                                                <li>
-                                                    <a href="submit-recipe.html">Submit Recipe</a>
-                                                </li>
-                                                <li>
-                                                    <a href="login.html">Login</a>
-                                                </li>
-                                                <li>
-                                                    <a href="login.html">404 Error</a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                        <li><a href="/">Blog</a>
-                                            <ul className="dropdown-menu-col-1">
-                                                <li><a href="blog-grid.html">Blog Grid</a></li>
-                                                <li><a href="blog-list.html">Blog List</a></li>
-                                                <li><a href="single-blog.html">Blog Details</a></li>
-                                            </ul>
-                                        </li>
-                                        <li><a href="/">Shop</a>
-                                            <ul className="dropdown-menu-col-1">
-                                                <li><a href="shop.html">Shop</a></li>
-                                                <li><a href="single-shop.html">Shop Details</a></li>
-                                            </ul>
-                                        </li>
-                                        <li><a href="contact.html">Contact</a></li>
                                     </ul>
                                 </nav>
                             </div>
@@ -226,15 +113,15 @@ const Header = () => {
                                                     </div>
                                                     <div className="cart-item">
                                                         <div className="cart-btn">
-                                                            <a href="/" className="item-btn">View Cart</a>
-                                                            <a href="/" className="item-btn">Checkout</a>
+                                                            <a href="/" className="item-btn">Đơn hàng</a>
+                                                            <a href="/" className="item-btn">Thanh toán</a>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </li>
                                         <li>
-                                            <div id="login-form-root"></div>
+                                            <LoginForm />
                                         </li>
                                         <li>
                                             <a href="submit-recipe.html" className="fill-btn"><i className="flaticon-plus-1"></i>SUBMIT
@@ -277,11 +164,7 @@ const Header = () => {
                                 <div className="nav-action-elements-layout3">
                                     <ul>
                                         <li>
-                                            <div className="header-search-box">
-                                                <a href="#search" title="Search" className="search-button">
-                                                    <i className="flaticon-search"></i>
-                                                </a> 
-                                            </div>
+                                            <SearchButton />
                                         </li>
                                         <li>
                                             <div className="cart-wrap d-none d-lg-block">                                            
@@ -346,8 +229,8 @@ const Header = () => {
                                                     </div>
                                                     <div className="cart-item">
                                                         <div className="cart-btn">
-                                                            <a href="/" className="item-btn">View Cart</a>
-                                                            <a href="/" className="item-btn">Checkout</a>
+                                                            <a href="/" className="item-btn">Đơn hàng</a>
+                                                            <a href="/" className="item-btn">Thanh toán</a>
                                                         </div>
                                                     </div>
                                                 </div>

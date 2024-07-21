@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 const LoginForm = () => {
 
@@ -57,65 +56,62 @@ const LoginForm = () => {
 
     return (
         <>
-            <button type="button" className="login-btn" onClick={handleShow}>
-                <i className="flaticon-profile"></i>Login
+            <button type="button" class="login-btn" data-toggle="modal" data-target="#myModal">
+                <i className="flaticon-profile"></i>Đăng nhập
             </button>
-            { show && (
-                <div className="modal show" id="myModal" role="dialog">
-                    <div className="modal-dialog" role="document">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <div className="title-default-bold mb-none">Login</div>
-                                <button type="button" className="btn-close" onClick={handleClose}>&times;</button>
-                            </div>
-                            <div className="modal-body">
-                                <form className="login-form" onSubmit={handleSubmit}>
-                                    <input 
-                                        className="main-input-box" 
-                                        type="text" 
-                                        placeholder="User Name" 
-                                        value={username} 
-                                        onChange={(e) => setUsername(e.target.value)} 
-                                    />
-                                    <input 
-                                        className="main-input-box" 
-                                        type="password" 
-                                        placeholder="Password" 
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                    />
-                                    <div className="inline-box mb-5 mt-4">
-                                        <div className="checkbox checkbox-primary">
-                                            <input 
-                                                id="modal-checkbox" 
-                                                type="checkbox" 
-                                                onChange={(e) => setRememberMe(e.target.checked)}
-                                            />
-                                            <label htmlFor="modal-checkbox">Remember Me</label>
-                                        </div>
-                                        <label className="lost-password"><a href="/password">Lost your password?</a></label>
+            <div className="modal fade" id="myModal" role="dialog">
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <div className="title-default-bold mb-none">Đăng Nhập</div>
+                            <button type="button" className="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div className="modal-body">
+                            <form className="login-form" onSubmit={handleSubmit}>
+                                <input 
+                                    className="main-input-box" 
+                                    type="text" 
+                                    placeholder="Tài khoản" 
+                                    value={username} 
+                                    onChange={(e) => setUsername(e.target.value)} 
+                                />
+                                <input 
+                                    className="main-input-box" 
+                                    type="password" 
+                                    placeholder="Mật khẩu" 
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                                <div className="inline-box mb-5 mt-4">
+                                    <div className="checkbox checkbox-primary">
+                                        <input 
+                                            id="modal-checkbox" 
+                                            type="checkbox" 
+                                            onChange={(e) => setRememberMe(e.target.checked)}
+                                        />
+                                        <label htmlFor="modal-checkbox">Ghi nhớ tôi</label>
                                     </div>
-                                    <div className="inline-box mb-5 mt-4">
-                                        <button class="btn-fill" type="submit" value="Login">Login</button>
-                                        <a href="/register" class="btn-register"><i class="fas fa-user"></i>Register Here!</a>
-                                    </div>
-                                    {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
-                                </form>
-                                <label>Login connect with your Social Network</label>
-                                <div className="login-box-so    cial">
-                                    <ul>
-                                        <li><a href="#" className="facebook"><i className="fab fa-facebook-f"></i></a></li>
-                                        <li><a href="#" className="twitter"><i className="fab fa-twitter"></i></a></li>
-                                        <li><a href="#" className="linkedin"><i className="fab fa-linkedin-in"></i></a></li>
-                                        <li><a href="#" className="google"><i className="fab fa-google-plus-g"></i></a></li>
-                                    </ul>
+                                    <label className="lost-password"><a href="#">Quên mật khẩu?</a></label>
                                 </div>
+                                <div className="inline-box mb-5 mt-4">
+                                    <button class="btn-fill" type="submit" value="Login">Đăng nhập</button>
+                                    <a href="/register" class="btn-register"><i class="fas fa-user"></i>Đăng ký</a>
+                                </div>
+                                {errorMsg && <div className="error-message">{errorMsg}</div>}
+                            </form>
+                            <label>Đăng nhập bằng mạng xã hội</label>
+                            <div className="login-box-social">
+                                <ul>
+                                    <li><a href="#" className="facebook"><i className="fab fa-facebook-f"></i></a></li>
+                                    <li><a href="#" className="twitter"><i className="fab fa-twitter"></i></a></li>
+                                    <li><a href="#" className="linkedin"><i className="fab fa-linkedin-in"></i></a></li>
+                                    <li><a href="#" className="google"><i className="fab fa-google-plus-g"></i></a></li>
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
-            )}
-
+            </div>
         </>
     );
 };
