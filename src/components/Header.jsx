@@ -12,8 +12,8 @@ const Header = () => {
                         <div className="row">
                             <div className="col-lg-8 col-md-3 col-sm-4 col-4 possition-static">
                                 <div className="site-logo-mobile">
-                                    <a href="index.html" className="sticky-logo-light"><img src="img/logo-light.png" alt="Site Logo"/></a>
-                                    <a href="index.html" className="sticky-logo-dark"><img src="img/logo-dark.png" alt="Site Logo"/></a>
+                                    <a href="/" className="sticky-logo-light"><img src="img/logo-light.png" alt="Site Logo"/></a>
+                                    <a href="/" className="sticky-logo-dark"><img src="img/logo-dark.png" alt="Site Logo"/></a>
                                 </div>
                                 <nav className="site-nav">
                                     <ul id="site-menu" className="site-menu">
@@ -124,7 +124,7 @@ const Header = () => {
                                             <LoginForm />
                                         </li>
                                         <li>
-                                            <a href="submit-recipe.html" className="fill-btn"><i className="flaticon-plus-1"></i>SUBMIT
+                                            <a href="/submit/recipe" className="fill-btn"><i className="flaticon-plus-1"></i>SUBMIT
                                                 RECIPE</a>
                                         </li>
                                     </ul>
@@ -157,7 +157,7 @@ const Header = () => {
                             </div>
                             <div className="col-lg-4 d-none d-lg-block">
                                 <div className="site-logo-desktop">
-                                    <a href="index.html" className="main-logo"><img src="img/logo-dark.png" alt="Site Logo"/></a>
+                                    <a href="/" className="main-logo"><img src="img/logo-dark.png" alt="Site Logo"/></a>
                                 </div>
                             </div>
                             <div className="col-lg-4">

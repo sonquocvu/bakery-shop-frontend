@@ -4,6 +4,7 @@ import PathConstants from './routes/PathConstants';
 import MainLayout from './components/MainLayout';
 import HomePage from './pages/HomePage';
 import Register from './pages/Register';
+import Login from './pages/Login';
 
 function App() {
 
@@ -14,6 +15,7 @@ function App() {
       children: [
         {path: PathConstants.HOME, element: <HomePage />},
         {path: PathConstants.REGISTER, element: <Register /> },
+        {path: PathConstants.LOGIN, element: <Login /> },
       ]
     },
   ]);

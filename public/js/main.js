@@ -1,4 +1,4 @@
-(function ($) {
+$(document).ready(function() {
     "use strict";
 
     /*-------------------------------------
@@ -204,8 +204,8 @@
 
                 target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
                 $('html,body').animate({
-                    scrollTop: target.offset().top
-                }, 1000);
+                    scrollTop: 0
+                }, "slow");
                 return false;
             }
         }
@@ -353,4 +353,4 @@
         });
     }
 
-})(jQuery);
+});

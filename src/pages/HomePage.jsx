@@ -6,7 +6,7 @@ const HomePage = () => {
 
     return (
         <>
-            <Slider2 />
+            <Slider />
             <section className="padding-bottom-18">
                 <div className="container">
                     <div className="row">
