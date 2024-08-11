@@ -30,9 +30,9 @@ const Slider = () => {
                             <p>More off this less hello salamander lied porpoise much over tightly circa
                                 outside crud mightily rigorouse. </p>
                             <ul className="entry-meta">
-                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
+                                <li><a href="/"><i className="fas fa-dollar-sign"></i>45.000 VNĐ</a></li>
+                                <li><a href="/"><i className="fas fa-user"></i>by <span>Phương Nga</span></a></li>
+                                <li><a href="/"><i className="fas fa-heart"></i><span>1000</span> Likes</a></li>
                             </ul>
                         </div>
                     </div>

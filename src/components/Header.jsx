@@ -4,6 +4,15 @@ import SearchButton from './SearchButton';
 
 const Header = () => {
 
+    let userJwt = sessionStorage.getItem("cakeShopJwt");
+    let fullName;
+    let avatarUrl;
+    let isUserLogin = (userJwt != null);
+    {
+        fullName = sessionStorage.getItem("cakeShopFullName");
+        avatarUrl = sessionStorage.getItem("cakeShopAvatarUrl");
+    }
+
     return (
         <>
             <header className="header-one">
@@ -23,7 +32,7 @@ const Header = () => {
                                         </li>                                        
                                         <li>
                                             <a href="/category">Danh Mục</a>
-                                            <ul class="dropdown-menu-col-1">
+                                            <ul className="dropdown-menu-col-1">
                                                 <li>
                                                     <a href="/singlepage">Signuture</a>
                                                 </li>
@@ -120,13 +129,45 @@ const Header = () => {
                                                 </div>
                                             </div>
                                         </li>
-                                        <li>
-                                            <LoginForm />
-                                        </li>
-                                        <li>
-                                            <a href="/submit/recipe" className="fill-btn"><i className="flaticon-plus-1"></i>SUBMIT
-                                                RECIPE</a>
-                                        </li>
+                                        { isUserLogin? 
+                                            <div>
+                                                <div className="nav-action-elements-layout1">
+                                                    <ul className="site-menu">                                     
+                                                        <li>
+                                                            <a href="#" className="user-info">
+                                                                <img src={avatarUrl} alt="Avatar"/>
+                                                                <span>{fullName}</span>
+                                                            </a>
+                                                            <ul className="dropdown-menu-col-1" id="dropdown-user">
+                                                                <li>
+                                                                    <a href="/Profile">
+                                                                        Hồ sơ</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="/">Đơn hàng của tôi</a>
+                                                                </li>                                            
+                                                            </ul>
+                                                        </li>
+                                                        <li>-</li>
+                                                        <li>
+                                                            <button type="button" className="login-btn" data-toggle="modal" data-target="#myModal">
+                                                                <a href="LogoutServlet" className="login-btn">Logout</a>
+                                                            </button>                                        
+                                                        </li>                                    
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            :
+                                            <div>
+                                                <li><LoginForm/></li>
+                                                <li>/</li>
+                                                <li>
+                                                    <button type="button" class="login-btn">
+                                                        <a href="/Register" class="login-btn">Đăng ký</a>
+                                                    </button>      
+                                                </li>
+                                            </div>
+                                        }
                                     </ul>
                                 </div>
                                 <div className="mob-menu-open toggle-menu">

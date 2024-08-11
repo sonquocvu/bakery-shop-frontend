@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Register = () => {
@@ -10,15 +11,20 @@ const Register = () => {
     const [passMsg, setPassMsg] = useState('');
 
     const [confirmedPassword, setConfirmedPassword] = useState('');
-    const [formData, setFormData] = useState({
-        fullName: '',
-        username: '',
+    const [formData, setFormData] = useState({        
+        email: '',
         password: '',
+        fullName: '',
+        phoneNumber: '',
+        gender: 'male',
     });
 
     const [errorMsg, setErrorMsg] = useState('');
-    const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const [countdown, setCountdown] = useState(3);
+    const [isRegistered, setIsRegistered] = useState(false);
+    const [redirectToHome, setRedirectToHome] = useState(false);
 
     const handleConfirmedPassword = (e) => {
         setPassMsg('');
@@ -29,7 +35,7 @@ const Register = () => {
 
         if (e.target.name === 'fullName') {
             setFullNameMsg('');
-        } else if (e.target.name === 'username') {
+        } else if (e.target.name === 'email') {
             setEmailMsg('');
         }
 
@@ -39,16 +45,27 @@ const Register = () => {
         });
     };
 
+    const startCountdown = () => {
+        const intervalId = setInterval(() => {
+            setCountdown((prevCountdown) => {
+                if (prevCountdown < 1) {
+                    clearInterval(intervalId);
+                    setRedirectToHome(true);
+                    return 0;
+                }
+
+                return prevCountdown - 1;
+            });
+        }, 1000);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setFullNameMsg('');
         setEmailMsg('');
         setPassMsg('');
         setErrorMsg('');
-        setMessage('');
         setLoading(true);
-
-        console.log("REACT_APP_SERVER_URL: " + baseUrl);
 
         let error = false;
 
@@ -57,7 +74,7 @@ const Register = () => {
             error = true;
         }
 
-        if (formData.username.length === 0) {
+        if (formData.email.length === 0) {
             setEmailMsg("Chưa điền email");
             error = true;
         }
@@ -77,11 +94,11 @@ const Register = () => {
 
         try {
             const response = await axios.post(
-                'http://localhost:9090/auth/register',
+                baseUrl + '/auth/register',
                 formData,
                 {
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json; charset=UTF-8',
                     },
                 }
             );
@@ -89,15 +106,20 @@ const Register = () => {
             setLoading(false);    
 
             if (response.status === 200) {
-                setMessage("Đăng ký thành công");
+                setIsRegistered(true);
+                startCountdown();
             } else {
-                setErrorMsg("email hoặc số điện đã tồn tại, vui lòng đăng ký lại");
+                setErrorMsg("email đã tồn tại, vui lòng đăng ký lại");
             }
         } catch (error) {
             setLoading(false);
             setErrorMsg("Đăng ký không thành công do lỗi hệ thống, vui lòng đăng ký lại");
         }
     };
+
+    if (redirectToHome) {
+        return < Navigate to="/" />;
+    }
 
     return (
         <>
@@ -109,67 +131,98 @@ const Register = () => {
                                 <div className="section-heading heading-dark">
                                     <h2 className="item-heading">Đăng Ký Tài Khoản</h2>
                                 </div>
-                                <form className="login-form" onSubmit={handleSubmit}>
-                                    <div className="col-md-7">
-                                        <label className="mb-3">Họ và tên</label>
-                                        <input 
-                                        className="main-input-box" 
-                                        type="text" 
-                                        name="fullName" 
-                                        placeholder="Vũ Thiên Thư" 
-                                        value={formData.fullName} 
-                                        onChange={handleFormData}
-                                        />
+                                { isRegistered ? (
+                                    <div class="alert alert-success col-md-9" role="alert">
+                                        <p>Đăng ký thành công! Chuyển đến trang chủ sau {countdown} giây</p>
                                     </div>
-                                    {fullNameMsg && <p style={{ color: 'red' }}>{fullNameMsg}</p>}
-                                    <div className="col-md-7">
-                                        <label className="mb-3">Email hoặc số điện thoại</label>
-                                        <input 
-                                        className="main-input-box" 
-                                        type="email" 
-                                        name="username" 
-                                        placeholder="email@gmail.com" 
-                                        value={formData.username}
-                                        onChange={handleFormData}
-                                        />
+                                ) : (
+                                    <form className="login-form" onSubmit={handleSubmit}>
+                                        <div className="row">
+                                            <div className="col-md-7">
+                                                <label className="mb-3">Họ và tên</label>
+                                                <input 
+                                                    className="main-input-box" 
+                                                    type="text" 
+                                                    name="fullName" 
+                                                    placeholder="Vũ Thiên Thư" 
+                                                    value={formData.fullName} 
+                                                    onChange={handleFormData}
+                                                />
+                                                {fullNameMsg && <p style={{ color: 'red' }}>{fullNameMsg}</p>}
+                                            </div>                      
+                                            <div className="col-md-5">
+                                                <label className="mb-3">Giới tính</label>
+                                                <select 
+                                                    className="form-control main-select-option col-md-5" 
+                                                    name = "gender" 
+                                                    value = {formData.gender} 
+                                                    onChange = {handleFormData}
+                                                >
+                                                    <option value="male">Nam</option>
+                                                    <option value="female">Nữ</option>
+                                                    <option value="other">Khác</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-7">
+                                            <label className="mb-3">Số điện thoại</label>
+                                            <input 
+                                                className="main-input-box" 
+                                                type="tel" 
+                                                name="phoneNumber" 
+                                                placeholder="0909123456"
+                                                value={formData.phoneNumber}
+                                                onChange={handleFormData}
+                                            />
+                                        </div>                                        
+                                        <div className="col-md-7">
+                                            <label className="mb-3">Email</label>
+                                            <input 
+                                                className="main-input-box" 
+                                                type="email" 
+                                                name="email" 
+                                                placeholder="email@gmail.com" 
+                                                value={formData.email}
+                                                onChange={handleFormData}
+                                            />
+                                        </div>
+                                        {emailMsg && <p style={{ color: 'red' }}>{emailMsg}</p>}                               
+                                        <div className="col-md-7">
+                                            <label className="mb-3">Mật khẩu</label>
+                                            <input 
+                                                className="main-input-box" 
+                                                type="password" 
+                                                name="password" 
+                                                placeholder="" 
+                                                value={formData.password}
+                                                onChange={handleFormData}
+                                            />
+                                        </div>
+                                        <div className="col-md-7">
+                                            <label className="mb-3">Xác nhận mật khẩu</label>
+                                            <input 
+                                                className="main-input-box" 
+                                                type="password" 
+                                                name='confirmedPassword'
+                                                placeholder="" 
+                                                value={confirmedPassword}
+                                                onChange={handleConfirmedPassword}
+                                            />
+                                        </div>
+                                        {passMsg && <p style={{ color: 'red' }}>{passMsg}</p>}                 
+                                        <div className="btn-area">
+                                            <button className="btn-fill btn-primary" type="submit" value="Login" disabled={loading}>Đăng Ký<i className="flaticon-next"></i></button>
+                                        </div>                             
+                                    </form> 
+                                )}                            
+                                    {errorMsg && <div class="alert alert-danger col-md-7" role="alert">{errorMsg}</div>}
+                                    <label>Đăng Nhập Bằng Tài Khoản Xã Hội</label>
+                                    <div className="login-box-social">
+                                        <ul>
+                                            <li><a href="/" className="facebook"><i className="fab fa-facebook-f"></i></a></li>
+                                            <li><a href="/" className="google"><i className="fab fa-google-plus-g"></i></a></li>
+                                        </ul>
                                     </div>
-                                    {emailMsg && <p style={{ color: 'red' }}>{emailMsg}</p>}                               
-                                    <div className="col-md-7">
-                                        <label className="mb-3">Mật khẩu</label>
-                                        <input 
-                                        className="main-input-box" 
-                                        type="password" 
-                                        name="password" 
-                                        placeholder="" 
-                                        value={formData.password}
-                                        onChange={handleFormData}
-                                        />
-                                    </div>
-                                    <div className="col-md-7">
-                                        <label className="mb-3">Xác nhận mật khẩu</label>
-                                        <input 
-                                        className="main-input-box" 
-                                        type="password" 
-                                        name='confirmedPassword'
-                                        placeholder="" 
-                                        value={confirmedPassword}
-                                        onChange={handleConfirmedPassword}
-                                        />
-                                    </div>
-                                    {passMsg && <p style={{ color: 'red' }}>{passMsg}</p>}                 
-                                    <div className="btn-area">
-                                        <button className="btn-fill btn-primary" type="submit" value="Login" disabled={loading}>Đăng Ký<i className="flaticon-next"></i></button>
-                                    </div>                             
-                                </form>
-                                {message && <div class="alert alert-success col-md-7" role="alert">{message}</div>}
-                                {errorMsg && <div class="alert alert-danger col-md-7" role="alert">{errorMsg}</div>}
-                                <label>Đăng Nhập Bằng Tài Khoản Xã Hội</label>
-                                <div className="login-box-social">
-                                    <ul>
-                                        <li><a href="/" className="facebook"><i className="fab fa-facebook-f"></i></a></li>
-                                        <li><a href="/" className="google"><i className="fab fa-google-plus-g"></i></a></li>
-                                    </ul>
-                                </div>
                             </div>
                         </div>
                         <div className="col-lg-4 sidebar-widget-area sidebar-break-md">

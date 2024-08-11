@@ -1,58 +1,74 @@
 import React, {useState} from 'react';
+import axios from 'axios';
 
 const LoginForm = () => {
+
+    const baseUrl = process.env.REACT_APP_SERVER_URL;
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [show, setShow] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleShow = () => setShow(true);
     const handleClose = () => setShow(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        
+        setErrorMsg('');
+        setLoading(true);
+
         const loginData = {
             username: username,
             password: password
         };
 
-        fetch('/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify(loginData)
-        })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(response.status);
+        try {
+            const response = await axios.post(
+                baseUrl + '/auth/login',
+                loginData,
+                {
+                    headers: {
+                        'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                },
+            );
+
+            setLoading(false);
+
+            if (response.status === 200) {
+
+                // if (rememberMe) {
+                //     localStorage.setItem('jwt', data.jwt);
+                //     localStorage.setItem('fullName', data.fullName);
+                //     localStorage.setItem('avatarUrl', data.avatarUrl);
+                // } else {
+                    // sessionStorage.setItem('fullName', data.fullName);
+                    // sessionStorage.setItem('avatarUrl', data.avatarUrl);
+                    // sessionStorage.setItem('jwt', data.jwt);
+                // }
+
+                sessionStorage.setItem('cakeShopFullName', response.data.fullName);
+                sessionStorage.setItem('cakeShopAvatarUrl', response.data.avatarUrl);
+                sessionStorage.setItem('cakeShopJwt', response.data.jwt);
+
+                console.log("Data from server: ", response.data);
+
+                window.location.reload();
+
             } else {
-                return response.json()
-            }})
-        .then(data => {
-            // if (rememberMe) {
-            //     localStorage.setItem('jwt', data.jwt);
-            //     localStorage.setItem('profile', data.profile);
-            // } else {
-            //     sessionStorage.setItem('jwt', data.jwt);
-            //     sessionStorage.setItem('profile', data.profile);
-            // }
-
-            setErrorMsg('');
-            console.log('Success:', data);
-            
-            // Close Modal using Bootstrap
-            //$('#myModal').hide();
-
-            // Reload the current page
-            // window.location.reload();
-        })
-        .catch((error) => {
-            setErrorMsg('Invalid username or password');
-        })
+                setErrorMsg("Tài khoản hoặc mật khẩu không đúng, vui lòng đăng nhập lại");
+            }
+        } catch (error) {
+            setLoading(false);
+            if (error.response && error.response.status === 401) {
+                setErrorMsg("Tài khoản hoặc mật khẩu không đúng, vui lòng đăng nhập lại");
+            } else {
+                setErrorMsg("Lỗi hệ thống! vui lòng đăng nhập lại");
+            }            
+        }
     }
 
     return (
@@ -72,7 +88,7 @@ const LoginForm = () => {
                                 <input 
                                     className="main-input-box" 
                                     type="text" 
-                                    placeholder="Tài khoản" 
+                                    placeholder="Email hoặc số điện thoại" 
                                     value={username} 
                                     onChange={(e) => setUsername(e.target.value)} 
                                 />
@@ -83,6 +99,7 @@ const LoginForm = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
+                                {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
                                 <div className="inline-box mb-5 mt-4">
                                     <div className="checkbox checkbox-primary">
                                         <input 
@@ -95,10 +112,9 @@ const LoginForm = () => {
                                     <label className="lost-password"><a href="#">Quên mật khẩu?</a></label>
                                 </div>
                                 <div className="inline-box mb-5 mt-4">
-                                    <button class="btn-fill" type="submit" value="Login">Đăng nhập</button>
+                                    <button class="btn-fill" type="submit" value="Login" disabled={loading}>Đăng nhập</button>
                                     <a href="/register" class="btn-register"><i class="fas fa-user"></i>Đăng ký</a>
                                 </div>
-                                {errorMsg && <div className="error-message">{errorMsg}</div>}
                             </form>
                             <label>Đăng nhập bằng mạng xã hội</label>
                             <div className="login-box-social">
