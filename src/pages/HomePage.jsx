@@ -1,86 +1,113 @@
-import React from 'react';
-import Slider from '../components/Slider';
-import Slider2 from '../components/Slider2';
+import React, {useEffect, useState} from 'react';
+import axios from 'axios';
 
 const HomePage = () => {
 
+    const [cakeMap, setCakeMap] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const baseUrl = process.env.REACT_APP_SERVER_URL;
+
+    useEffect(() => {
+
+        setLoading(true);
+
+        const homePageDataKey = "cakeShopHomePageData";
+        const storedData = sessionStorage.getItem(homePageDataKey);
+
+        if (storedData) {
+            setCakeMap(JSON.parse(storedData));
+            setLoading(false);
+        } else {
+            const fetchDataFromServer = async () => {
+
+                try {
+                    const url = baseUrl + '/common/home';
+                    const response = await axios.get(url);
+                    const cakes = response.data;
+        
+                    sessionStorage.setItem(homePageDataKey, JSON.stringify(cakes));
+                    setCakeMap(cakes);
+                } catch (error) {
+                    setError("Không tải được trang web, vui lòng thử lại!");
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchDataFromServer();
+        }
+
+    }, []);
+
+    if (loading) {
+        return <div>Loading...</div>
+    }
+
+    if (error) {
+        return (
+            <div>
+                <p style={{color: 'red'}}>Lỗi: {error}</p>
+            </div>
+        );
+    }
+    
+    const newCakes = new Array();
+    const categories = new Array();
+
+    Object.entries(cakeMap).forEach(([category, cakes]) => {
+        if (category != "Đồ uống") {
+            const m_cakes = cakes.slice(0, 2);
+            newCakes.push(...m_cakes);
+        }     
+
+        categories.push({category: category, quantity: cakes.length.toString()});
+    });
+
+    const signatures = cakeMap.Signature;
+    const custards = cakeMap["Bánh kem"];
+    const breads = cakeMap["Bánh mì"];
+    const teas = cakeMap["Trà"];
+
     return (
         <>
-            <Slider />
             <section className="padding-bottom-18">
                 <div className="container">
                     <div className="row">
-                        <div className="col-lg-4 col-md-6 col-sm-12">
-                            <div className="product-box-layout1">
-                                <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product1.jpg"
-                                            alt="Product"/></a></figure>
-                                <div className="item-content">
-                                    <span className="sub-title">BREAKFAST</span>
-                                    <h3 className="item-title"><a href="single-recipe1.html">Tomatoes Stuffed with Foie and
-                                            Chanterelles</a></h3>
-                                    <ul className="item-rating">
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-empty"><i className="fas fa-star"></i></li>
-                                        <li><span>9<span> / 10</span></span> </li>
-                                    </ul>
-                                    <ul className="entry-meta">
-                                        <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                        <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                        <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                    </ul>
+                        {signatures.map((signature, index) => ( index < 3 &&
+                            <div className="col-lg-4 col-md-6 col-sm-12">
+                                <div className="product-box-layout1">
+                                    <figure className="item-figure"><a href={`/single-page?category=${encodeURIComponent(signature.category)}&id=${encodeURIComponent(signature.id)}`}>
+                                        <img src={signature.imageUrls[0]} alt="Product"/></a>
+                                    </figure>
+                                    <div className="item-content">
+                                        <span className="sub-title">{signature.category}</span>
+                                        <h3 className="item-title"><a href={`/single-page?category=${encodeURIComponent(signature.category)}&id=${encodeURIComponent(signature.id)}`}>
+                                            {signature.name}</a>
+                                        </h3>
+                                        <ul className="item-rating">
+                                            <li className="star-fill"><i className="fas fa-star"></i></li>
+                                            <li className="star-fill"><i className="fas fa-star"></i></li>
+                                            <li className="star-fill"><i className="fas fa-star"></i></li>
+                                            <li className="star-fill"><i className="fas fa-star"></i></li>
+                                            <li className="star-fill"><i className="fas fa-star"></i></li>
+                                            <li><span>10<span> / 10</span></span> </li>
+                                        </ul>
+                                        <ul className="entry-meta">
+                                            <li><a href={`/single-page?category=${encodeURIComponent(signature.category)}&id=${encodeURIComponent(signature.id)}`}>
+                                                <i className="fas fa-dollar-sign"></i>{signature.price} VNĐ</a>
+                                            </li>
+                                            <li><a href={`/single-page?category=${encodeURIComponent(signature.category)}&id=${encodeURIComponent(signature.id)}`}>
+                                                <i className="fas fa-user"></i>by <span>{signature.chef}</span></a>
+                                            </li>
+                                            <li><a href={`/single-page?category=${encodeURIComponent(signature.category)}&id=${encodeURIComponent(signature.id)}`}>
+                                                <i className="fas fa-heart"></i><span>1000</span> Likes</a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6 col-sm-12">
-                            <div className="product-box-layout1">
-                                <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product2.jpg"
-                                            alt="Product"/></a></figure>
-                                <div className="item-content">
-                                    <span className="sub-title">DESERT</span>
-                                    <h3 className="item-title"><a href="single-recipe1.html">Pumpkin Cheesecake With
-                                            GingersnapCrust</a></h3>
-                                    <ul className="item-rating">
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-empty"><i className="fas fa-star"></i></li>
-                                        <li><span>9<span> / 10</span></span> </li>
-                                    </ul>
-                                    <ul className="entry-meta">
-                                        <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                        <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                        <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-4 d-block d-md-none d-lg-block col-sm-12">
-                            <div className="product-box-layout1">
-                                <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product3.jpg"
-                                            alt="Product"/></a></figure>
-                                <div className="item-content">
-                                    <span className="sub-title">JUICE</span>
-                                    <h3 className="item-title"><a href="single-recipe1.html">Blueberry Juice with Lemon Crema</a></h3>
-                                    <ul className="item-rating">
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-empty"><i className="fas fa-star"></i></li>
-                                        <li><span>9<span> / 10</span></span> </li>
-                                    </ul>
-                                    <ul className="entry-meta">
-                                        <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                        <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                        <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -89,189 +116,81 @@ const HomePage = () => {
                     <div className="row gutters-60">
                         <div className="col-lg-8">
                             <div className="section-heading heading-dark">
-                                <h2 className="item-heading">TRENDING RECIPES</h2>
+                                <h2 className="item-heading">BÁNH KEM</h2>
                             </div>
                             <div className="row">
                                 <div className="col-12">
                                     <div className="product-box-layout1">
-                                        <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product4.jpg"
-                                                    alt="Product"/></a></figure>
+                                        <figure className="item-figure"><a href={`/single-page?category=${encodeURIComponent(custards[0].category)}&id=${encodeURIComponent(custards[0].id)}`}>
+                                            <img src={custards[0].imageUrls[0]} alt="Product"/></a>
+                                        </figure>
                                         <div className="item-content">
-                                            <span className="sub-title">PASTA</span>
-                                            <h2 className="item-title"><a href="single-recipe1.html">Chanterelle and Porcini
-                                                    Mushroom Recipes</a></h2>
+                                            <span className="sub-title">{custards[0].category}</span>
+                                            <h2 className="item-title"><a href={`/single-page?category=${encodeURIComponent(custards[0].category)}&id=${encodeURIComponent(custards[0].id)}`}>
+                                                {custards[0].name}</a>
+                                            </h2>
                                             <ul className="item-rating">
                                                 <li className="star-fill"><i className="fas fa-star"></i></li>
                                                 <li className="star-fill"><i className="fas fa-star"></i></li>
                                                 <li className="star-fill"><i className="fas fa-star"></i></li>
                                                 <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-empty"><i className="fas fa-star"></i></li>
-                                                <li><span>9<span> / 10</span></span> </li>
+                                                <li className="star-fill"><i className="fas fa-star"></i></li>
+                                                <li><span>10<span> / 10</span></span> </li>
                                             </ul>
-                                            <p>More off this less hello salamander lied porpoise much over tightly circa
-                                                horse taped so innocuously side crud mightily rigorous plot life. New homes
-                                                in particular are subject.</p>
                                             <ul className="entry-meta">
-                                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
+                                                <li><a href={`/single-page?category=${encodeURIComponent(custards[0].category)}&id=${encodeURIComponent(custards[0].id)}`}>
+                                                    <i className="fas fa-dollar-sign"></i>{custards[0].price} VNĐ</a>
+                                                </li>
+                                                <li><a href={`/single-page?category=${encodeURIComponent(custards[0].category)}&id=${encodeURIComponent(custards[0].id)}`}>
+                                                    <i className="fas fa-user"></i>by <span>{custards[0].chef}</span></a>
+                                                </li>
+                                                <li><a href={`/single-page?category=${encodeURIComponent(custards[0].category)}&id=${encodeURIComponent(custards[0].id)}`}>
+                                                    <i className="fas fa-heart"></i><span>2222</span> Likes</a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-md-6 col-sm-6 col-12">
-                                    <div className="product-box-layout1">
-                                        <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product5.jpg"
-                                                    alt="Product"/></a></figure>
-                                        <div className="item-content">
-                                            <span className="sub-title">CHICKEN</span>
-                                            <h3 className="item-title"><a href="single-recipe1.html">Asian Chicken Noodles</a></h3>
-                                            <ul className="item-rating">
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-empty"><i className="fas fa-star"></i></li>
-                                                <li><span>9<span> / 10</span></span> </li>
-                                            </ul>
-                                            <p>More off this less hello salamander lied porpoise much over tightly circa
-                                                outside crud mightily rigorouse. </p>
-                                            <ul className="entry-meta">
-                                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                            </ul>
+                                {custards.map((custard, index) => ( index >= 1 && index <= 8 &&
+                                    <div className="col-md-6 col-sm-6 col-12">
+                                        <div className="product-box-layout1">
+                                            <figure className="item-figure"><a href={`/single-page?category=${encodeURIComponent(custard.category)}&id=${encodeURIComponent(custard.id)}`}>
+                                                <img src={custard.imageUrls[0]} alt="Product"/></a>
+                                            </figure>
+                                            <div className="item-content">
+                                                <span className="sub-title">{custard.category}</span>
+                                                <h3 className="item-title"><a href={`/single-page?category=${encodeURIComponent(custard.category)}&id=${encodeURIComponent(custard.id)}`}>
+                                                    {custard.name}</a>
+                                                </h3>
+                                                <ul className="item-rating">
+                                                    <li className="star-fill"><i className="fas fa-star"></i></li>
+                                                    <li className="star-fill"><i className="fas fa-star"></i></li>
+                                                    <li className="star-fill"><i className="fas fa-star"></i></li>
+                                                    <li className="star-fill"><i className="fas fa-star"></i></li>
+                                                    <li className="star-fill"><i className="fas fa-star"></i></li>
+                                                    <li><span>10<span> / 10</span></span> </li>
+                                                </ul>
+                                                <ul className="entry-meta">
+                                                    <li><a href={`/single-page?category=${encodeURIComponent(custard.category)}&id=${encodeURIComponent(custard.id)}`}>
+                                                        <i className="fas fa-dollar-sign"></i>{custard.price} VNĐ</a>
+                                                    </li>
+                                                    <li><a href={`/single-page?category=${encodeURIComponent(custard.category)}&id=${encodeURIComponent(custard.id)}`}>
+                                                        <i className="fas fa-user"></i>by <span>{custard.chef}</span></a>
+                                                    </li>
+                                                    <li><a href={`/single-page?category=${encodeURIComponent(custard.category)}&id=${encodeURIComponent(custard.id)}`}>
+                                                        <i className="fas fa-heart"></i><span>2222</span> Likes</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="col-md-6 col-sm-6 col-12">
-                                    <div className="product-box-layout1">
-                                        <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product6.jpg"
-                                                    alt="Product"/></a></figure>
-                                        <div className="item-content">
-                                            <span className="sub-title">SALAD</span>
-                                            <h3 className="item-title"><a href="single-recipe1.html">Italiano Salad Mixed</a></h3>
-                                            <ul className="item-rating">
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-empty"><i className="fas fa-star"></i></li>
-                                                <li><span>9<span> / 10</span></span> </li>
-                                            </ul>
-                                            <p>More off this less hello salamander lied porpoise much over tightly circa
-                                                outside crud mightily rigorouse. </p>
-                                            <ul className="entry-meta">
-                                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-6 col-sm-6 col-12">
-                                    <div className="product-box-layout1">
-                                        <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product7.jpg"
-                                                    alt="Product"/></a></figure>
-                                        <div className="item-content">
-                                            <span className="sub-title">DINNER</span>
-                                            <h3 className="item-title"><a href="single-recipe1.html">Maxican Dessert</a></h3>
-                                            <ul className="item-rating">
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-empty"><i className="fas fa-star"></i></li>
-                                                <li><span>9<span> / 10</span></span> </li>
-                                            </ul>
-                                            <p>More off this less hello salamander lied porpoise much over tightly circa
-                                                outside crud mightily rigorouse. </p>
-                                            <ul className="entry-meta">
-                                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-6 col-sm-6 col-12">
-                                    <div className="product-box-layout1">
-                                        <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product8.jpg"
-                                                    alt="Product"/></a></figure>
-                                        <div className="item-content">
-                                            <span className="sub-title">JUICE</span>
-                                            <h3 className="item-title"><a href="single-recipe1.html">Soypan Fruits Juice</a></h3>
-                                            <ul className="item-rating">
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-empty"><i className="fas fa-star"></i></li>
-                                                <li><span>9<span> / 10</span></span> </li>
-                                            </ul>
-                                            <p>More off this less hello salamander lied porpoise much over tightly circa
-                                                outside crud mightily rigorouse. </p>
-                                            <ul className="entry-meta">
-                                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-6 col-sm-6 col-12">
-                                    <div className="product-box-layout1">
-                                        <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product9.jpg"
-                                                    alt="Product"/></a></figure>
-                                        <div className="item-content">
-                                            <span className="sub-title">BREAKFAST</span>
-                                            <h3 className="item-title"><a href="single-recipe1.html">Crepes with Forest</a></h3>
-                                            <ul className="item-rating">
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-empty"><i className="fas fa-star"></i></li>
-                                                <li><span>9<span> / 10</span></span> </li>
-                                            </ul>
-                                            <p>More off this less hello salamander lied porpoise much over tightly circa
-                                                outside crud mightily rigorouse. </p>
-                                            <ul className="entry-meta">
-                                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-6 col-sm-6 col-12">
-                                    <div className="product-box-layout1">
-                                        <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product10.jpg"
-                                                    alt="Product"/></a></figure>
-                                        <div className="item-content">
-                                            <span className="sub-title">DINNER</span>
-                                            <h3 className="item-title"><a href="single-recipe1.html">Asian Chicken Noodles</a></h3>
-                                            <ul className="item-rating">
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-empty"><i className="fas fa-star"></i></li>
-                                                <li><span>9<span> / 10</span></span> </li>
-                                            </ul>
-                                            <p>More off this less hello salamander lied porpoise much over tightly circa
-                                                outside crud mightily rigorouse. </p>
-                                            <ul className="entry-meta">
-                                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                             <div className="ranna-ad-box">
-                                <a href="/"><img src="img/figure/figure1.jpg" alt="ad"/></a>
+                                <a href="/"><img src="img/admin/cake-shop-1.jpg" alt="ad"/></a>
+                            </div>
+                            <div className="ranna-ad-box">
+                                <a href="/"><img src="img/admin/cake-shop-3.jpg" alt="ad"/></a>
                             </div>
                         </div>
                         <div className="col-lg-4 sidebar-widget-area sidebar-break-md">
@@ -280,10 +199,9 @@ const HomePage = () => {
                                     <h3 className="item-heading">ABOUT ME</h3>
                                 </div>
                                 <div className="widget-about">
-                                    <figure className="author-figure"><img src="img/figure/about.jpg" alt="about"/></figure>
-                                    <figure className="author-signature"><img src="img/figure/signature.png" alt="about"/></figure>
-                                    <p>Fusce mauris auctor ollicituder teary iner hendrerit risusey aeenean rauctor pibus
-                                        doloer.</p>
+                                    <figure className="author-figure"><img src="img/admin/lover.jpg" alt="about"/></figure>
+                                    <figure className="author-signature"><img src="img/admin/signature.png" alt="about"/></figure>
+                                    <p>Dân Chơi Hệ Bánh, Sóng Sánh Đại Dương</p>
                                 </div>
                             </div>
                             <div className="widget">
@@ -303,215 +221,50 @@ const HomePage = () => {
                             </div>
                             <div className="widget">
                                 <div className="section-heading heading-dark">
-                                    <h3 className="item-heading">LATEST RECIPES</h3>
+                                    <h3 className="item-heading">MÓN YÊU THÍCH</h3>
                                 </div>
                                 <div className="widget-latest">
                                     <ul className="block-list">
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="/"><img src="img/product/latest1.jpg" alt="Post"/></a>
-                                                <div className="count-number">1</div>
-                                            </div>
-                                            <div className="item-content">
-                                                <div className="item-ctg">DESERT</div>
-                                                <h4 className="item-title"><a href="/">Salami Oven Roasted are
-                                                        Mozzarella Oelette</a></h4>
-                                                <div className="item-post-by"><a href="single-blog.html"><i className="fas fa-user"></i><span>by</span>
-                                                        John Martin</a></div>
-                                            </div>
-                                        </li>
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="/"><img src="img/product/latest2.jpg" alt="Post"/></a>
-                                                <div className="count-number">2</div>
-                                            </div>
-                                            <div className="item-content">
-                                                <div className="item-ctg">DESERT</div>
-                                                <h4 className="item-title"><a href="/">Salami Oven Roasted are
-                                                        Mozzarella Oelette</a></h4>
-                                                <div className="item-post-by"><a href="single-blog.html"><i className="fas fa-user"></i><span>by</span>
-                                                        John Martin</a></div>
-                                            </div>
-                                        </li>
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="/"><img src="img/product/latest3.jpg" alt="Post"/></a>
-                                                <div className="count-number">3</div>
-                                            </div>
-                                            <div className="item-content">
-                                                <div className="item-ctg">DESERT</div>
-                                                <h4 className="item-title"><a href="/">Salami Oven Roasted are
-                                                        Mozzarella Oelette</a></h4>
-                                                <div className="item-post-by"><a href="single-blog.html"><i className="fas fa-user"></i><span>by</span>
-                                                        John Martin</a></div>
-                                            </div>
-                                        </li>
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="/"><img src="img/product/latest4.jpg" alt="Post"/></a>
-                                                <div className="count-number">4</div>
-                                            </div>
-                                            <div className="item-content">
-                                                <div className="item-ctg">DESERT</div>
-                                                <h4 className="item-title"><a href="/">Salami Oven Roasted are
-                                                        Mozzarella Oelette</a></h4>
-                                                <div className="item-post-by"><a href="single-blog.html"><i className="fas fa-user"></i><span>by</span>
-                                                        John Martin</a></div>
-                                            </div>
-                                        </li>
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="/"><img src="img/product/latest2.jpg" alt="Post"/></a>
-                                                <div className="count-number">3</div>
-                                            </div>
-                                            <div className="item-content">
-                                                <div className="item-ctg">DESERT</div>
-                                                <h4 className="item-title"><a href="/">Salami Oven Roasted are
-                                                        Mozzarella Oelette</a></h4>
-                                                <div className="item-post-by"><a href="single-blog.html"><i className="fas fa-user"></i><span>by</span>
-                                                        John Martin</a></div>
-                                            </div>
-                                        </li>
+                                        {newCakes.map((newCake, index) => (
+                                            <li className="single-item">
+                                                <div className="item-img">
+                                                    <a href={`/single-page?category=${encodeURIComponent(newCake.category)}&id=${encodeURIComponent(newCake.id)}`}>
+                                                        <img src={newCake.imageUrls[0]} alt="Post"/>
+                                                    </a>
+                                                    <div className="count-number">{index+1}</div>
+                                                </div>
+                                                <div className="item-content">
+                                                    <div className="item-ctg">{newCake.category}</div>
+                                                    <h4 className="item-title">
+                                                        <a href={`/single-page?category=${encodeURIComponent(newCake.category)}&id=${encodeURIComponent(newCake.id)}`}>{newCake.name}</a>
+                                                    </h4>
+                                                    <div className="item-post-by"><a href="single-blog.html">
+                                                        <i className="fas fa-user"></i><span>by </span>{newCake.chef}</a>
+                                                    </div>
+                                                </div>
+                                            </li>                                                                                   
+                                        ))}
                                     </ul>
                                 </div>
                             </div>
                             <div className="widget">
                                 <div className="widget-ad">
-                                    <a href="/"><img src="img/figure/figure2.jpg" alt="Ad" className="img-fluid"/></a>
+                                    <a href="/">
+                                        <img src="img/admin/cake-shop-2.jpg" alt="Ad" className="img-fluid"/>
+                                    </a>
                                 </div>
                             </div>
                             <div className="widget">
                                 <div className="section-heading heading-dark">
-                                    <h3 className="item-heading">CATEGORIES</h3>
+                                    <h3 className="item-heading">DANH MỤC</h3>
                                 </div>
                                 <div className="widget-categories">
-                                    <ul>
-                                        <li>
-                                            <a href="/">BreakFast
-                                                <span>25</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="/">Lunch
-                                                <span>15</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="/">Pasta
-                                                <span>22</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="/">Dinner
-                                                <span>18</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="/">Dessert
-                                                <span>36</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="/">Drinks
-                                                <span>12</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div className="widget">
-                                <div className="widget-newsletter-subscribe">
-                                    <h3>GET LATEST UPDATES</h3>
-                                    <p>Newsletter Subscribe</p>
-                                    <form className="newsletter-subscribe-form">
-                                        <div className="form-group">
-                                            <input type="text" placeholder="your e-mail address" className="form-control" name="email"
-                                                data-error="E-mail field is required" required/>
-                                            <div className="help-block with-errors"></div>
-                                        </div>
-                                        <div className="form-group mb-none">
-                                            <button type="submit" className="item-btn">SUBSCRIBE</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section className="padding-bottom-45">
-                <div className="container">
-                    <div className="section-heading heading-dark">
-                        <h2 className="item-heading">EDITOR'S CHOICE</h2>
-                    </div>
-                    <div className="row">
-                        <div className="col-lg-4 col-md-6 col-sm-12 col-12">
-                            <div className="product-box-layout2">
-                                <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product11.jpg"
-                                            alt="Product"/></a></figure>
-                                <div className="item-content">
-                                    <span className="sub-title">BREAKFAST</span>
-                                    <h3 className="item-title"><a href="single-recipe1.html">Tomatoes Stuffed with Foie and
-                                            Chanterelles</a></h3>
-                                    <ul className="item-rating">
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-empty"><i className="fas fa-star"></i></li>
-                                        <li><span>9<span> / 10</span></span> </li>
-                                    </ul>
-                                    <ul className="entry-meta">
-                                        <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                        <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                        <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6 col-sm-12 col-12">
-                            <div className="product-box-layout2">
-                                <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product12.jpg"
-                                            alt="Product"/></a></figure>
-                                <div className="item-content">
-                                    <span className="sub-title">DESERT</span>
-                                    <h3 className="item-title"><a href="single-recipe1.html">Pumpkin Cheesecake With
-                                            GingersnapCrust</a></h3>
-                                    <ul className="item-rating">
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-empty"><i className="fas fa-star"></i></li>
-                                        <li><span>9<span> / 10</span></span> </li>
-                                    </ul>
-                                    <ul className="entry-meta">
-                                        <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                        <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                        <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-4 d-block d-md-none d-lg-block col-sm-12 col-12">
-                            <div className="product-box-layout2">
-                                <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product13.jpg"
-                                            alt="Product"/></a></figure>
-                                <div className="item-content">
-                                    <span className="sub-title">JUICE</span>
-                                    <h3 className="item-title"><a href="single-recipe1.html">Blueberry Juice with Lemon Crema</a></h3>
-                                    <ul className="item-rating">
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-fill"><i className="fas fa-star"></i></li>
-                                        <li className="star-empty"><i className="fas fa-star"></i></li>
-                                        <li><span>9<span> / 10</span></span> </li>
-                                    </ul>
-                                    <ul className="entry-meta">
-                                        <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                        <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                        <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
+                                    <ul>                                        
+                                        {categories.map((category) => (
+                                            <li>
+                                                <a href="/">{category.category}<span>{category.quantity}</span></a>
+                                            </li>
+                                        ))}                                 
                                     </ul>
                                 </div>
                             </div>
@@ -524,123 +277,49 @@ const HomePage = () => {
                     <div className="row gutters-60">
                         <div className="col-lg-8">
                             <div className="section-heading heading-dark">
-                                <h2 className="item-heading">POPULAR RECIPES</h2>
+                                <h2 className="item-heading">BÁNH MÌ</h2>
                             </div>
                             <div className="row">
-                                <div className="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
+                                {breads.map((bread, index) => ( index <= 6 && 
+                                    <div className="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
                                     <div className="product-box-layout3">
-                                        <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product14.jpg"
-                                                    alt="Product"/></a></figure>
+                                        <figure className="item-figure"><a href={`/single-page?category=${encodeURIComponent(bread.category)}&id=${encodeURIComponent(bread.id)}`}>
+                                            <img src={bread.imageUrls[0]} alt="Product"/></a>
+                                        </figure>
                                         <div className="item-content">
-                                            <span className="sub-title">BREAKFAST</span>
-                                            <h3 className="item-title"><a href="single-recipe1.html">Asian Chicken Noodles</a></h3>
+                                            <span className="sub-title">{bread.category}</span>
+                                            <h3 className="item-title">
+                                                <a href={`/single-page?category=${encodeURIComponent(bread.category)}&id=${encodeURIComponent(bread.id)}`}>{bread.name}</a>
+                                            </h3>
                                             <ul className="item-rating">
                                                 <li className="star-fill"><i className="fas fa-star"></i></li>
                                                 <li className="star-fill"><i className="fas fa-star"></i></li>
                                                 <li className="star-fill"><i className="fas fa-star"></i></li>
                                                 <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-empty"><i className="fas fa-star"></i></li>
-                                                <li><span>9<span> / 10</span></span> </li>
+                                                <li className="star-fill"><i className="fas fa-star"></i></li>
+                                                <li><span>10<span> / 10</span></span> </li>
                                             </ul>
-                                            <p>Pro sint falli definitiones noel ei verear intellegatpri civibus
-                                                consequat efficiantue.Vestibulum ante ipsum primis in fau
-                                                cibus orci luctus et ultrices posuere cubilia Curae; Nunc
-                                                mattis turpis id aliquet.</p>
                                             <ul className="entry-meta">
-                                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
+                                                <li><a href={`/single-page?category=${encodeURIComponent(bread.category)}&id=${encodeURIComponent(bread.id)}`}>
+                                                    <i className="fas fa-dollar-sign"></i>{bread.price} VNĐ</a>
+                                                </li>
+                                                <li><a href={`/single-page?category=${encodeURIComponent(bread.category)}&id=${encodeURIComponent(bread.id)}`}>
+                                                    <i className="fas fa-user"></i>by <span>{bread.chef}</span></a>
+                                                </li>
+                                                <li><a href={`/single-page?category=${encodeURIComponent(bread.category)}&id=${encodeURIComponent(bread.id)}`}>
+                                                    <i className="fas fa-heart"></i><span>9999</span> Likes</a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
-                                    <div className="product-box-layout3">
-                                        <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product15.jpg"
-                                                    alt="Product"/></a></figure>
-                                        <div className="item-content">
-                                            <span className="sub-title">SEA FOOD</span>
-                                            <h3 className="item-title"><a href="single-recipe1.html">Italiano Salad Mixed</a></h3>
-                                            <ul className="item-rating">
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-empty"><i className="fas fa-star"></i></li>
-                                                <li><span>9<span> / 10</span></span> </li>
-                                            </ul>
-                                            <p>Pro sint falli definitiones noel ei verear intellegatpri civibus
-                                                consequat efficiantue.Vestibulum ante ipsum primis in fau
-                                                cibus orci luctus et ultrices posuere cubilia Curae; Nunc
-                                                mattis turpis id aliquet.</p>
-                                            <ul className="entry-meta">
-                                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-xl-12 col-lg-6 col-md-6 col-sm-6 col-12">
-                                    <div className="product-box-layout3">
-                                        <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product16.jpg"
-                                                    alt="Product"/></a></figure>
-                                        <div className="item-content">
-                                            <span className="sub-title">SALAD</span>
-                                            <h3 className="item-title"><a href="single-recipe1.html">Maxican Dessert</a></h3>
-                                            <ul className="item-rating">
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-empty"><i className="fas fa-star"></i></li>
-                                                <li><span>9<span> / 10</span></span> </li>
-                                            </ul>
-                                            <p>Pro sint falli definitiones noel ei verear intellegatpri civibus
-                                                consequat efficiantue.Vestibulum ante ipsum primis in fau
-                                                cibus orci luctus et ultrices posuere cubilia Curae; Nunc
-                                                mattis turpis id aliquet.</p>
-                                            <ul className="entry-meta">
-                                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="d-lg-block d-xl-none col-lg-6 col-md-6 col-sm-6 col-12">
-                                    <div className="product-box-layout3">
-                                        <figure className="item-figure"><a href="single-recipe1.html"><img src="img/product/product14.jpg"
-                                                    alt="Product"/></a></figure>
-                                        <div className="item-content">
-                                            <span className="sub-title">BREAKFAST</span>
-                                            <h3 className="item-title"><a href="single-recipe1.html">Asian Chicken Noodles</a></h3>
-                                            <ul className="item-rating">
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-fill"><i className="fas fa-star"></i></li>
-                                                <li className="star-empty"><i className="fas fa-star"></i></li>
-                                                <li><span>9<span> / 10</span></span> </li>
-                                            </ul>
-                                            <p>Pro sint falli definitiones noel ei verear intellegatpri civibus
-                                                consequat efficiantue.Vestibulum ante ipsum primis in fau
-                                                cibus orci luctus et ultrices posuere cubilia Curae; Nunc
-                                                mattis turpis id aliquet.</p>
-                                            <ul className="entry-meta">
-                                                <li><a href="/"><i className="fas fa-clock"></i>15 Mins</a></li>
-                                                <li><a href="/"><i className="fas fa-user"></i>by <span>John Martin</span></a></li>
-                                                <li><a href="/"><i className="fas fa-heart"></i><span>02</span> Likes</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                                    </div> 
+                                ))}                               
                             </div>
                         </div>
                         <div className="col-lg-4 sidebar-widget-area sidebar-break-md">
                             <div className="widget">
                                 <div className="section-heading heading-dark">
-                                    <h3 className="item-heading">FEATURED ARTICLE</h3>
+                                    <h3 className="item-heading">TRÀ</h3>
                                 </div>
                                 <div className="widget-featured-feed">
                                     <div className="rc-carousel nav-control-layout1" data-loop="true" data-items="3"
@@ -653,112 +332,26 @@ const HomePage = () => {
                                         data-r-large-nav="true" data-r-large-dots="false" data-r-extra-large="1"
                                         data-r-extra-large-nav="true" data-r-extra-large-dots="false">
                                         <div className="featured-box-layout1">
-                                            <div className="item-img">
-                                                <img src="img/product/product17.jpg" alt="Brand" className="img-fluid"/>
-                                            </div>
-                                            <div className="item-content">
-                                                <span className="ctg-name">BREAKFAST</span>
-                                                <h4 className="item-title"><a href="single-recipe1.html">Baked Garlic Prawn</a></h4>
-                                                <p>Definitiones noel ei verear intelle
-                                                    gatpri civibus consequat area
-                                                    refund efficiantue.</p>
-                                            </div>
-                                        </div>
-                                        <div className="featured-box-layout1">
-                                            <div className="item-img">
-                                                <img src="img/product/product18.jpg" alt="Brand" className="img-fluid"/>
-                                            </div>
-                                            <div className="item-content">
-                                                <span className="ctg-name">DINNER</span>
-                                                <h4 className="item-title"><a href="single-recipe1.html">Baked Garlic Prawn</a></h4>
-                                                <p>Definitiones noel ei verear intelle
-                                                    gatpri civibus consequat area
-                                                    refund efficiantue.</p>
-                                            </div>
-                                        </div>
-                                        <div className="featured-box-layout1">
-                                            <div className="item-img">
-                                                <img src="img/product/product19.jpg" alt="Brand" className="img-fluid"/>
-                                            </div>
-                                            <div className="item-content">
-                                                <span className="ctg-name">SALAD</span>
-                                                <h4 className="item-title"><a href="single-recipe1.html">Baked Garlic Prawn</a></h4>
-                                                <p>Definitiones noel ei verear intelle
-                                                    gatpri civibus consequat area
-                                                    refund efficiantue.</p>
-                                            </div>
+                                            {teas.map((tea, index) => ( index < 3 &&
+                                                <>
+                                                    <div className="item-img">
+                                                        <img src={tea.imageUrls[0]} alt={tea.name} className="img-fluid"/>
+                                                    </div>
+                                                    <div className="item-content">
+                                                        <span className="ctg-name">{tea.category}</span>
+                                                        <h4 className="item-title">
+                                                            <a href={`/single-page?category=${encodeURIComponent(tea.category)}&id=${encodeURIComponent(tea.id)}`}>{tea.name}</a>
+                                                        </h4>
+                                                    </div>                                           
+                                                </>
+                                            ))}
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="widget">
-                                <div className="section-heading heading-dark">
-                                    <h3 className="item-heading">POPULAR TAGS</h3>
-                                </div>
-                                <div className="widget-tag">
-                                    <ul>
-                                        <li>
-                                            <a href="/">DESERT</a>
-                                        </li>
-                                        <li>
-                                            <a href="/">CAKE</a>
-                                        </li>
-                                        <li>
-                                            <a href="/">BREAKFAST</a>
-                                        </li>
-                                        <li>
-                                            <a href="/">BURGER</a>
-                                        </li>
-                                        <li>
-                                            <a href="/">DINNER</a>
-                                        </li>
-                                        <li>
-                                            <a href="/">PIZZA</a>
-                                        </li>
-                                        <li>
-                                            <a href="/">SEA FOOD</a>
-                                        </li>
-                                        <li>
-                                            <a href="/">SALAD</a>
-                                        </li>
-                                        <li>
-                                            <a href="/">JUICE</a>
-                                        </li>
-                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
-            <section className="instagram-feed-wrap">
-                <div className="instagram-feed-title"><a href="/"><i className="fab fa-instagram"></i>Follow On Instagram</a></div>
-                <ul className="instagram-feed-figure">
-                    <li>
-                        <a href="single-recipe1.html"><img src="img/social-figure/social-figure1.jpg" alt="Social"/></a>
-                    </li>
-                    <li>
-                        <a href="single-recipe1.html"><img src="img/social-figure/social-figure2.jpg" alt="Social"/></a>
-                    </li>
-                    <li>
-                        <a href="single-recipe1.html"><img src="img/social-figure/social-figure3.jpg" alt="Social"/></a>
-                    </li>
-                    <li>
-                        <a href="single-recipe1.html"><img src="img/social-figure/social-figure4.jpg" alt="Social"/></a>
-                    </li>
-                    <li>
-                        <a href="single-recipe1.html"><img src="img/social-figure/social-figure5.jpg" alt="Social"/></a>
-                    </li>
-                    <li>
-                        <a href="single-recipe1.html"><img src="img/social-figure/social-figure6.jpg" alt="Social"/></a>
-                    </li>
-                    <li>
-                        <a href="single-recipe1.html"><img src="img/social-figure/social-figure7.jpg" alt="Social"/></a>
-                    </li>
-                    <li>
-                        <a href="single-recipe1.html"><img src="img/social-figure/social-figure8.jpg" alt="Social"/></a>
-                    </li>
-                </ul>
             </section>
         </>
     );

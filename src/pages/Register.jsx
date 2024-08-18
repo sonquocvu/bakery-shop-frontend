@@ -114,6 +114,8 @@ const Register = () => {
         } catch (error) {
             setLoading(false);
             setErrorMsg("Đăng ký không thành công do lỗi hệ thống, vui lòng đăng ký lại");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -132,7 +134,7 @@ const Register = () => {
                                     <h2 className="item-heading">Đăng Ký Tài Khoản</h2>
                                 </div>
                                 { isRegistered ? (
-                                    <div class="alert alert-success col-md-9" role="alert">
+                                    <div className="alert alert-success col-md-9" role="alert">
                                         <p>Đăng ký thành công! Chuyển đến trang chủ sau {countdown} giây</p>
                                     </div>
                                 ) : (
@@ -215,7 +217,7 @@ const Register = () => {
                                         </div>                             
                                     </form> 
                                 )}                            
-                                    {errorMsg && <div class="alert alert-danger col-md-7" role="alert">{errorMsg}</div>}
+                                    {errorMsg && <div className="alert alert-danger col-md-7" role="alert">{errorMsg}</div>}
                                     <label>Đăng Nhập Bằng Tài Khoản Xã Hội</label>
                                     <div className="login-box-social">
                                         <ul>

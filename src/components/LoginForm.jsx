@@ -54,8 +54,6 @@ const LoginForm = () => {
                 sessionStorage.setItem('cakeShopAvatarUrl', response.data.avatarUrl);
                 sessionStorage.setItem('cakeShopJwt', response.data.jwt);
 
-                console.log("Data from server: ", response.data);
-
                 window.location.reload();
 
             } else {

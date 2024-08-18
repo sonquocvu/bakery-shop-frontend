@@ -5,6 +5,9 @@ import MainLayout from './components/MainLayout';
 import HomePage from './pages/HomePage';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import SinglePage from './pages/SinglePage';
+import Shop from './pages/Shop';
+import Category from './pages/Category';
 
 function App() {
 
@@ -16,6 +19,9 @@ function App() {
         {path: PathConstants.HOME, element: <HomePage />},
         {path: PathConstants.REGISTER, element: <Register /> },
         {path: PathConstants.LOGIN, element: <Login /> },
+        {path: PathConstants.SINGLEPAGE, element: <SinglePage />},
+        {path: PathConstants.SHOP, element: <Shop />},
+        {path: PathConstants.CATEGORY, element: <Category />},
       ]
     },
   ]);

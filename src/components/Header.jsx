@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
+import axios from 'axios';
 import LoginForm from './LoginForm';
 import SearchButton from './SearchButton';
 
@@ -13,6 +14,61 @@ const Header = () => {
         avatarUrl = sessionStorage.getItem("cakeShopAvatarUrl");
     }
 
+    const [cakeMap, setCakeMap] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const baseUrl = process.env.REACT_APP_SERVER_URL;
+
+    useEffect(() => {
+
+        setLoading(true);
+
+        const homePageDataKey = "cakeShopHomePageData";
+        const storedData = sessionStorage.getItem(homePageDataKey);
+
+        if (storedData) {
+            setCakeMap(JSON.parse(storedData));
+            setLoading(false);
+        } else {
+            const fetchDataFromServer = async () => {
+
+                try {
+                    const url = baseUrl + '/common/home';
+                    const response = await axios.get(url);
+                    const cakes = response.data;
+        
+                    sessionStorage.setItem(homePageDataKey, JSON.stringify(cakes));
+                    setCakeMap(cakes);
+                } catch (error) {
+                    setError("Không tải được trang web, vui lòng thử lại!");
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchDataFromServer();
+        }
+
+    }, []);
+
+    if (loading) {
+        return <div>Loading...</div>
+    }
+
+    if (error) {
+        return (
+            <div>
+                <p style={{color: 'red'}}>Lỗi: {error}</p>
+            </div>
+        );
+    }
+    
+    const categories = new Array();
+
+    Object.entries(cakeMap).forEach(([category, cakes]) => {
+        categories.push({name: category, quantity: cakes.length.toString()});
+    });
+
     return (
         <>
             <header className="header-one">
@@ -22,33 +78,21 @@ const Header = () => {
                             <div className="col-lg-8 col-md-3 col-sm-4 col-4 possition-static">
                                 <div className="site-logo-mobile">
                                     <a href="/" className="sticky-logo-light"><img src="img/logo-light.png" alt="Site Logo"/></a>
-                                    <a href="/" className="sticky-logo-dark"><img src="img/logo-dark.png" alt="Site Logo"/></a>
+                                    <a href="/" className="sticky-logo-dark"><img src="img/admin/logo.png" alt="Site Logo"/></a>
                                 </div>
                                 <nav className="site-nav">
                                     <ul id="site-menu" className="site-menu">
                                         <li><a href="/">Trang chủ</a></li>
-                                        <li>
-                                            <a href="/shop">Shop</a>
-                                        </li>                                        
+                                        <li><a href="/shop">Shop</a></li>                                        
                                         <li>
                                             <a href="/category">Danh Mục</a>
                                             <ul className="dropdown-menu-col-1">
-                                                <li>
-                                                    <a href="/singlepage">Signuture</a>
-                                                </li>
-                                                <li>
-                                                    <a href="/singlepage">Bánh mì</a>
-                                                </li>
-                                                <li>
-                                                    <a href="/singlepage">Bánh kem</a>
-                                                </li>
-                                                <li>
-                                                    <a href="/singlepage">Dụng cụ</a>
-                                                </li>
+                                                {categories.map((category) => (
+                                                    <li>
+                                                        <a href={`/category?category=${encodeURIComponent(category.name)}`}>{category.name}</a>
+                                                    </li>
+                                                ))}
                                             </ul>                                                                                       
-                                        </li>
-                                        <li>
-                                            <a href="/recipe">Công thức</a>
                                         </li>
                                         <li>
                                             <a href="/contact">Liên hệ</a>
@@ -162,8 +206,8 @@ const Header = () => {
                                                 <li><LoginForm/></li>
                                                 <li>/</li>
                                                 <li>
-                                                    <button type="button" class="login-btn">
-                                                        <a href="/Register" class="login-btn">Đăng ký</a>
+                                                    <button type="button" className="login-btn">
+                                                        <a href="/Register" className="login-btn">Đăng ký</a>
                                                     </button>      
                                                 </li>
                                             </div>
@@ -198,7 +242,7 @@ const Header = () => {
                             </div>
                             <div className="col-lg-4 d-none d-lg-block">
                                 <div className="site-logo-desktop">
-                                    <a href="/" className="main-logo"><img src="img/logo-dark.png" alt="Site Logo"/></a>
+                                    <a href="/" className="main-logo"><img src="img/admin/signature.png" alt="Site Logo"/></a>
                                 </div>
                             </div>
                             <div className="col-lg-4">

@@ -4386,6 +4386,8 @@ ul {
 }
 
 .product-box-layout1 .item-figure {
+	width: 100%;
+	height: 250px;
 	margin-bottom: 0;
 	overflow: hidden;
 }
@@ -4727,6 +4729,8 @@ ul {
 }
 
 .product-box-layout3 .item-figure {
+	width: 70%;
+	height: auto;
 	margin-bottom: 0;
 	overflow: hidden;
 }
@@ -5709,6 +5713,29 @@ ul {
 
 .shop-box-layout1:hover .mask-item .action-items li:nth-child(3n) {
 	transition-delay: 0.5s;
+}
+
+.shop-box-layout1 .item-figure {
+	background-color: #ffffff;
+	width: 100%;
+	height: 150px;
+	margin-bottom: 0;
+	overflow: hidden;
+}
+
+.shop-box-layout1 .item-figure a {
+	display: block;
+}
+
+.shop-box-layout1 .item-figure img {
+	-webkit-transform: rotate(0) scale(1);
+	-ms-transform: rotate(0) scale(1);
+	transform: rotate(0) scale(1);
+	-webkit-transition: all 0.3s ease-in-out;
+	-moz-transition: all 0.3s ease-in-out;
+	-ms-transition: all 0.3s ease-in-out;
+	-o-transition: all 0.3s ease-in-out;
+	transition: all 0.3s ease-in-out;
 }
 
 .filter-box {
@@ -7326,6 +7353,28 @@ ul {
 .single-recipe-layout1 .leave-review .leave-form-box input.form-control:-ms-input-placeholder,
 .single-recipe-layout1 .leave-review .leave-form-box textarea.form-control:-ms-input-placeholder {
 	color: #646464;
+}
+
+.single-recipe-layout1 .item-figure {
+	width: 100%;
+	height: auto;
+	margin-bottom: 20px;
+	overflow: hidden;
+}
+
+.single-recipe-layout1 .item-figure a {
+	display: block;
+}
+
+.single-recipe-layout1 .item-figure img {
+	-webkit-transform: rotate(0) scale(1);
+	-ms-transform: rotate(0) scale(1);
+	transform: rotate(0) scale(1);
+	-webkit-transition: all 0.3s ease-in-out;
+	-moz-transition: all 0.3s ease-in-out;
+	-ms-transition: all 0.3s ease-in-out;
+	-o-transition: all 0.3s ease-in-out;
+	transition: all 0.3s ease-in-out;
 }
 
 .single-recipe-layout2 {
@@ -10861,7 +10910,7 @@ ul {
 }
 
 .widget-about figure.author-figure {
-	margin-bottom: 30px;
+	margin-bottom: 10px;
 }
 
 .widget-about figure.author-figure img {
@@ -10869,7 +10918,7 @@ ul {
 }
 
 .widget-about figure.author-signature {
-	margin-bottom: 30px;
+	margin-bottom: 10px;
 }
 
 .widget-follow-us ul {
@@ -11070,7 +11119,10 @@ ul {
 }
 
 .widget-latest ul.block-list .single-item .item-img {
-	margin-right: 15px;
+	width: 50%;
+	max-width: 500px;
+	height: auto;
+	margin-right: 10px;
 	margin-top: 5px;
 	position: relative;
 	overflow: hidden;
@@ -11806,7 +11858,8 @@ footer.ranna-bg-dark {
 }
 
 .footer-logo {
-	margin-bottom: 50px;
+	margin-top: 0px;
+	margin-bottom: 10px;
 }
 
 .footer-logo a {

@@ -7,7 +7,7 @@ const Footer = () => {
             <footer className="ranna-bg-dark">
                 <div className="container">
                     <div className="footer-logo">
-                        <a href="index.html"><img src="img/logo-light.png" className="img-fluid" alt="footer-logo"/></a>
+                        <a href="/"><img src="img/admin/signature-dark.png" className="img-fluid" alt="signature"/></a>
                     </div>
                     <div className="footer-menu">
                         <ul>
