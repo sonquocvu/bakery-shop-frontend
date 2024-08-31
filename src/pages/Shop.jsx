@@ -4,42 +4,106 @@ import axios from 'axios';
 
 const Shop = () => {
 
-    const [cakeMap, setCakeMap] = useState(null);
+    const [allProducts, setAllProducts] = useState(null);
+    const [productsPerPage, setProductsPerPage] = useState(null);
+    const [categories, setCategories] = useState(null);
+    const [quantity, setQuantity] = useState(0);
+    const [numProductsPerPage, setNumProductsPerPage] = useState(19);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [numOfPages, setNumOfPages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const baseUrl = process.env.REACT_APP_SERVER_URL;
 
-    useEffect(() => {
+    const categoryKey = "categoryKey";
+    const categoryData = sessionStorage.getItem(categoryKey);
 
+    const fetchProducts = async (page, pageNumber) => {
+        try {
+            const url = baseUrl + '/common/products';
+            const numbers = numProductsPerPage * 10;
+            const response = await axios.get(url, {
+                params: {
+                    page: page,
+                    size: numbers
+                }
+            });
+            const m_allProducts = {page: page, data: response.data};
+            setAllProducts(m_allProducts);
+
+            let start = numProductsPerPage * ((pageNumber % 10) - 1);
+            let end = numProductsPerPage * (pageNumber % 10);
+            setProductsPerPage(m_allProducts.data.slice(start, end));
+
+        } catch (error) {
+            setError("Không tải được trang web, vui lòng thử lại!");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         setLoading(true);
 
-        const homePageDataKey = "cakeShopHomePageData";
-        const storedData = sessionStorage.getItem(homePageDataKey);
+        let m_categories = null;
 
-        if (storedData) {
-            setCakeMap(JSON.parse(storedData));
-            setLoading(false);
-        } else {
-            const fetchDataFromServer = async () => {
-
+        if (categoryData) {
+            m_categories = JSON.parse(categoryData);
+            setCategories(m_categories);
+        }  else {
+            const fetchCategories = async () => {
                 try {
-                    const url = baseUrl + '/common/home';
+                    const url = baseUrl + '/common/category';
                     const response = await axios.get(url);
-                    const cakes = response.data;
+                    m_categories = response.data;
         
-                    sessionStorage.setItem(homePageDataKey, JSON.stringify(cakes));
-                    setCakeMap(cakes);
+                    sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
+                    setCategories(m_categories);
                 } catch (error) {
                     setError("Không tải được trang web, vui lòng thử lại!");
-                } finally {
                     setLoading(false);
                 }
             };
 
-            fetchDataFromServer();
+            fetchCategories();
         }
 
+        let numOfProducts = 0;
+        m_categories.map((category) => {
+            numOfProducts += Number(category.quantity);
+        })
+        setQuantity(numOfProducts);
+
+        let totalPages = Math.ceil(numOfProducts / numProductsPerPage);
+        let m_numOfPages = [];
+        for (let i = 1; i <= totalPages; i++) {
+            m_numOfPages.push(i);
+        }
+        setNumOfPages(m_numOfPages);
+
+        fetchProducts(0, currentPage);       
+        
     }, []);
+
+    const handlePageNumber = (pageNumber) => {
+        setLoading(true);
+        setCurrentPage(pageNumber);
+
+        const page = parseInt(pageNumber / 10);
+        if (page != allProducts.page && (pageNumber % 10) != 0) {
+            fetchProducts(page, pageNumber);
+        } else {
+            let start = numProductsPerPage * ((pageNumber % 10) - 1);
+            let end = numProductsPerPage * (pageNumber % 10);
+            if ((pageNumber % 10) === 0) {
+                start = numProductsPerPage * 9;
+                end = numProductsPerPage * 10;
+            }
+            setProductsPerPage(allProducts.data.slice(start, end));
+        }
+
+        setLoading(false);
+    };
 
     if (loading) {
         return <div>Loading...</div>
@@ -52,16 +116,6 @@ const Shop = () => {
             </div>
         );
     }
-    
-    const products = [];
-    const categories = [];
-    let quantity = 0;
-
-    Object.entries(cakeMap).forEach(([category, m_products]) => {
-        quantity += m_products.length;
-        products.push(...m_products);
-        categories.push({name: category, quantity: m_products.length.toString()});
-    });
 
     return (
         <>
@@ -92,7 +146,7 @@ const Shop = () => {
                                 </div>
                             </div>
                             <div className="row">
-                                {products.map((product) => (
+                                {productsPerPage.map((product) => (
                                     <div className="col-md-4 col-sm-6 col-12">
                                         <div className="shop-box-layout1">
                                             <div className="mask-item bg--accent">
@@ -130,18 +184,11 @@ const Shop = () => {
                                 ))}
                             </div>
                             <ul className="pagination-layout1">
-                                <li className="active">
-                                    <a href="#">1</a>
-                                </li>
-                                <li>
-                                    <a href="#">2</a>
-                                </li>
-                                <li>
-                                    <a href="#">3</a>
-                                </li>
-                                <li>
-                                    <a href="#">4</a>
-                                </li>
+                                {numOfPages.map((number) => (
+                                    <li><button className={currentPage == number ? "active" : ""} key={number} onClick={() => handlePageNumber(number)}>
+                                        {number}
+                                    </button></li>
+                                ))}
                             </ul>
                         </div>
                         <div className="col-lg-4 sidebar-widget-area sidebar-break-md">
@@ -156,57 +203,8 @@ const Shop = () => {
                                                 <a href={`/category?category=${encodeURIComponent(category.name)}`}>{category.name}
                                                     <span>{category.quantity}</span>
                                                 </a>
-                                            </li>                                            
+                                            </li>                                           
                                         ))}
-                                    </ul>
-                                </div>
-                            </div>
-                            <div className="widget">
-                                <div className="section-heading heading-dark">
-                                    <h3 className="item-heading">BÁN CHẠY</h3>
-                                </div>
-                                <div className="widget-top-product">
-                                    <ul className="block-list">
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="single-shop.html" className="item-icon"><i className="flaticon-plus-1"></i></a>
-                                                <img src="img/product/top-product1.jpg" alt="Post"/>
-                                            </div>
-                                            <div className="item-content">
-                                                <h4 className="item-title"><a href="#">Kitchen Product</a></h4>
-                                                <div className="item-price"><span className="item-currency">$</span>15.00</div>
-                                            </div>
-                                        </li>
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="single-shop.html" className="item-icon"><i className="flaticon-plus-1"></i></a>
-                                                <img src="img/product/top-product2.jpg" alt="Post"/>
-                                            </div>
-                                            <div className="item-content">
-                                                <h4 className="item-title"><a href="#">Kitchen Product</a></h4>
-                                                <div className="item-price"><span className="item-currency">$</span>25.00</div>
-                                            </div>
-                                        </li>
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="single-shop.html" className="item-icon"><i className="flaticon-plus-1"></i></a>
-                                                <img src="img/product/top-product3.jpg" alt="Post"/>
-                                            </div>
-                                            <div className="item-content">
-                                                <h4 className="item-title"><a href="#">Kitchen Product</a></h4>
-                                                <div className="item-price"><span className="item-currency">$</span>29.00</div>
-                                            </div>
-                                        </li>
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="single-shop.html" className="item-icon"><i className="flaticon-plus-1"></i></a>
-                                                <img src="img/product/top-product4.jpg" alt="Post"/>
-                                            </div>
-                                            <div className="item-content">
-                                                <h4 className="item-title"><a href="#">Kitchen Product</a></h4>
-                                                <div className="item-price"><span className="item-currency">$</span>10.00</div>
-                                            </div>
-                                        </li>
                                     </ul>
                                 </div>
                             </div>

@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import SinglePage from './pages/SinglePage';
 import Shop from './pages/Shop';
 import Category from './pages/Category';
+import Contact from './pages/Contact';
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
         {path: PathConstants.SINGLEPAGE, element: <SinglePage />},
         {path: PathConstants.SHOP, element: <Shop />},
         {path: PathConstants.CATEGORY, element: <Category />},
+        {path: PathConstants.CONTACT, element: <Contact />},
       ]
     },
   ]);

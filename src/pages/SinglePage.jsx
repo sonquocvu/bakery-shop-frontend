@@ -4,34 +4,42 @@ import axios from 'axios';
 
 const SinglePage = () => {
 
-    const [cakeMap, setCakeMap] = useState(null);
+    const [singleFood, setSingleFood] = useState(null);
+    const [newFoods, setNewFoods] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const baseUrl = process.env.REACT_APP_SERVER_URL;
 
+    // Get params pass to this componen by using URL
     const location = useLocation();
     const params = new URLSearchParams(location.search);
+    const category = params.get('category');
+    const productId = params.get('id');
+
+    const currentDateTime = new Date().toLocaleDateString();
 
     useEffect(() => {
 
         setLoading(true);
+        let m_foodMap = null;
+        let m_singleFood = null;
+        let m_newFoods = [];
 
         const homePageDataKey = "cakeShopHomePageData";
-        const storedData = sessionStorage.getItem(homePageDataKey);
+        const homeData = sessionStorage.getItem(homePageDataKey);
 
-        if (storedData) {
-            setCakeMap(JSON.parse(storedData));
+        if (homeData) {
+            m_foodMap = JSON.parse(homeData)
             setLoading(false);
         } else {
-            const fetchDataFromServer = async () => {
+            const fetchHomeData = async () => {
 
                 try {
                     const url = baseUrl + '/common/home';
                     const response = await axios.get(url);
-                    const cakes = response.data;
+                    m_foodMap = response.data;
         
-                    sessionStorage.setItem(homePageDataKey, JSON.stringify(cakes));
-                    setCakeMap(cakes);
+                    sessionStorage.setItem(homePageDataKey, JSON.stringify(m_foodMap));
                 } catch (error) {
                     setError("Không tải được trang web, vui lòng thử lại!");
                 } finally {
@@ -39,7 +47,49 @@ const SinglePage = () => {
                 }
             };
 
-            fetchDataFromServer();
+            fetchHomeData();
+        }
+
+        Object.entries(m_foodMap).forEach(([category, foods]) => {
+            m_newFoods.push(...foods.slice(0, 1));
+        });
+        setNewFoods(m_newFoods);
+
+        // Get single food
+        const foods = m_foodMap[category];
+        foods.forEach(food => {
+            if (food.id == productId) {
+                m_singleFood = food;
+            }
+        })
+
+        if (m_singleFood) {
+            setSingleFood(m_singleFood);
+        } else {
+            const fetchSingleFood = async () => {
+
+                try {
+                    const url = baseUrl + '/common/single/product';
+                    const encodedCat = encodeURIComponent(category);
+                    const response = await axios.get(url, {
+                        params: {
+                            category: encodedCat,
+                            productId: productId
+                        }
+                    });
+                    m_singleFood = response.data;
+                    setSingleFood(m_singleFood);
+        
+                    m_foodMap[category].push(m_singleFood);
+                    sessionStorage.setItem(homePageDataKey, JSON.stringify(m_foodMap));
+                } catch (error) {
+                    setError("Không tải được trang web, vui lòng thử lại!");
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchSingleFood();
         }
 
     }, []);
@@ -56,31 +106,6 @@ const SinglePage = () => {
         );
     }
 
-    const currentDateTime = new Date().toLocaleDateString();
-
-    // Get params pass to this componen by using URL
-    const category = params.get('category');
-    const id = params.get('id');
-
-    // Get specific cake
-    let cake;
-    const cakes = cakeMap[category];
-    cakes.forEach(m_cake => {
-        if (m_cake.id == id) {
-            cake = m_cake;
-        }
-    })
-
-    // Get new cakes list
-    const newCakes = [];
-
-    Object.entries(cakeMap).forEach(([category, cakes]) => {
-        if (category !== "Đồ uống") {
-            const m_cakes = cakes.slice(0, 2);
-            newCakes.push(...m_cakes);
-        }
-    });
-
     return (
         <>
             <section className="single-recipe-wrap-layout1 padding-top-15 padding-bottom-50">
@@ -89,12 +114,12 @@ const SinglePage = () => {
                         <div className="col-lg-8">
                             <div className="single-recipe-layout1">
                                 <div className="ctg-name">{category}</div>
-                                <h2 className="item-title">{cake.name}</h2>
+                                <h2 className="item-title">{singleFood.name}</h2>
                                 <div className="row mb-4">
                                     <div className="col-xl-9 col-12">
                                         <ul className="entry-meta">
                                             <li className="single-meta"><a href="#"><i className="far fa-calendar-alt"></i>{currentDateTime}</a></li>
-                                            <li className="single-meta"><a href="#"><i className="fas fa-user"></i>by <span>{cake.chef}</span></a></li>
+                                            <li className="single-meta"><a href="#"><i className="fas fa-user"></i>by <span>{singleFood.chef}</span></a></li>
                                             <li className="single-meta">
                                                 <ul className="item-rating">
                                                     <li className="star-fill"><i className="fas fa-star"></i></li>
@@ -126,32 +151,34 @@ const SinglePage = () => {
                                         </ul>
                                     </div>
                                 </div>
-                                {cake.imageUrls.map((imageUrl) => (
+                                {singleFood.imageUrls.map((imageUrl) => (
                                     <div className="item-figure">
                                         <img src={imageUrl} alt="Product"/>
                                     </div>
                                 ))}
-                                <p className="item-description">{cake.description}.</p>
+                                <p className="item-description">{singleFood.description}.</p>
                             </div>
                         </div>
                         <div className="col-lg-4 sidebar-widget-area sidebar-break-md">
                             <div className="widget">
                                 <div className="section-heading heading-dark">
-                                    <h3 className="item-heading">MÓN YÊU THÍCH</h3>
+                                    <h3 className="item-heading">MÓN MỚI</h3>
                                 </div>
                                 <div className="widget-latest">
                                     <ul className="block-list">
-                                    {newCakes.map((newCake, index) => (
+                                    {newFoods.map((newFood, index) => (
                                             <li className="single-item">
                                                 <div className="item-img">
-                                                    <a href="/"><img src={newCake.imageUrls[0]} alt="Post"/></a>
+                                                    <a href={`/single-page?category=${encodeURIComponent(newFood.category)}&id=${encodeURIComponent(newFood.id)}`}><img src={newFood.imageUrls[0]} alt="Post"/></a>
                                                     <div className="count-number">{index+1}</div>
                                                 </div>
                                                 <div className="item-content">
-                                                    <div className="item-ctg">{category}</div>
-                                                    <h4 className="item-title"><a href="/">{newCake.name}</a></h4>
+                                                    <div className="item-ctg">{newFood.category}</div>
+                                                    <h4 className="item-title"><a href={`/single-page?category=${encodeURIComponent(newFood.category)}&id=${encodeURIComponent(newFood.id)}`}>
+                                                        {newFood.name}
+                                                    </a></h4>
                                                     <div className="item-post-by"><a href="single-blog.html"><i className="fas fa-user"></i><span>by </span>
-                                                            {newCake.chef}</a></div>
+                                                            {newFood.chef}</a></div>
                                                 </div>
                                             </li>                                                                                     
                                         ))}

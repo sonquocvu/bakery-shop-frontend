@@ -14,7 +14,7 @@ const Header = () => {
         avatarUrl = sessionStorage.getItem("cakeShopAvatarUrl");
     }
 
-    const [cakeMap, setCakeMap] = useState(null);
+    const [categories, setCategories] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const baseUrl = process.env.REACT_APP_SERVER_URL;
@@ -23,22 +23,22 @@ const Header = () => {
 
         setLoading(true);
 
-        const homePageDataKey = "cakeShopHomePageData";
-        const storedData = sessionStorage.getItem(homePageDataKey);
+        const categoryKey = "categoryKey";
+        const categoryData = sessionStorage.getItem(categoryKey);
 
-        if (storedData) {
-            setCakeMap(JSON.parse(storedData));
+        if (categoryData) {
+            setCategories(JSON.parse(categoryData));
             setLoading(false);
         } else {
             const fetchDataFromServer = async () => {
 
                 try {
-                    const url = baseUrl + '/common/home';
+                    const url = baseUrl + '/common/category';
                     const response = await axios.get(url);
-                    const cakes = response.data;
+                    const m_categories = response.data;
         
-                    sessionStorage.setItem(homePageDataKey, JSON.stringify(cakes));
-                    setCakeMap(cakes);
+                    sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
+                    setCategories(m_categories);
                 } catch (error) {
                     setError("Không tải được trang web, vui lòng thử lại!");
                 } finally {
@@ -62,12 +62,6 @@ const Header = () => {
             </div>
         );
     }
-    
-    const categories = new Array();
-
-    Object.entries(cakeMap).forEach(([category, cakes]) => {
-        categories.push({name: category, quantity: cakes.length.toString()});
-    });
 
     return (
         <>
@@ -85,7 +79,7 @@ const Header = () => {
                                         <li><a href="/">Trang chủ</a></li>
                                         <li><a href="/shop">Shop</a></li>                                        
                                         <li>
-                                            <a href="/category">Danh Mục</a>
+                                            <a href={`/category?category=${encodeURIComponent("Signature")}`}>Danh Mục</a>
                                             <ul className="dropdown-menu-col-1">
                                                 {categories.map((category) => (
                                                     <li>

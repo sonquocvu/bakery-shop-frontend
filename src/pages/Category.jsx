@@ -4,45 +4,124 @@ import axios from 'axios';
 
 const Category = () => {
 
-    const [cakeMap, setCakeMap] = useState(null);
+    const [allProducts, setAllProducts] = useState(null);
+    const [productsPerPage, setProductsPerPage] = useState(null);
+    const [categories, setCategories] = useState(null);
+    const [quantity, setQuantity] = useState(0);
+    const [numProductsPerPage, setNumProductsPerPage] = useState(19);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [numOfPages, setNumOfPages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const baseUrl = process.env.REACT_APP_SERVER_URL;
 
+    // Get params pass to this componen by using URL
     const location = useLocation();
     const params = new URLSearchParams(location.search);
+    const categoryName = params.get('category');
+
+    const homePageDataKey = "cakeShopHomePageData";
+    const categoryKey = "categoryKey";
+    const homeData = sessionStorage.getItem(homePageDataKey);
+    const categoryData = sessionStorage.getItem(categoryKey);
 
     useEffect(() => {
+        setLoading(true);
+
+        let m_categories = null;
+        let m_productMap = null;
+        let m_allProducts = [];
+        let m_numOfPages = [];
+        let m_quantity = 0;
+        
+        const fetchCategories = async () => {
+
+            try {
+                const url = baseUrl + '/common/category';
+                const response = await axios.get(url);
+                m_categories = response.data;
+    
+                sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
+                setCategories(m_categories);
+            } catch (error) {
+                setError("Không tải được trang web, vui lòng thử lại!");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        const fetchProducts = async () => {
+
+            try {
+                const url = baseUrl + '/common/category/product';
+                const response = await axios.get(url, {
+                    params: {
+                        category: categoryName
+                    }
+                });
+                m_allProducts = response.data;
+    
+                setAllProducts(m_allProducts);
+            } catch (error) {
+                setError("Không tải được trang web, vui lòng thử lại!");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (categoryData) {
+            m_categories = JSON.parse(categoryData);
+            setCategories(m_categories);
+            setLoading(false);
+        }  else {
+            fetchCategories();
+        }
+
+        m_categories.map(category => {
+            if (category.name == categoryName) {
+                m_quantity = category.quantity;
+                setQuantity(m_quantity);
+            }
+        });
+
+        if (homeData) {
+            m_productMap = JSON.parse(homeData);
+            m_allProducts = m_productMap[categoryName];
+            
+            if (m_allProducts.length < m_quantity)
+            {
+                fetchProducts();
+            } else {
+                setAllProducts(m_allProducts);
+            }
+        } else {
+            fetchProducts();
+        }
 
         setLoading(true);
 
-        const homePageDataKey = "cakeShopHomePageData";
-        const storedData = sessionStorage.getItem(homePageDataKey);
+        let start = numProductsPerPage * (currentPage - 1);
+        let end = numProductsPerPage * currentPage;
+        setProductsPerPage(m_allProducts.slice(start, end));
 
-        if (storedData) {
-            setCakeMap(JSON.parse(storedData));
-            setLoading(false);
-        } else {
-            const fetchDataFromServer = async () => {
-
-                try {
-                    const url = baseUrl + '/common/home';
-                    const response = await axios.get(url);
-                    const cakes = response.data;
-        
-                    sessionStorage.setItem(homePageDataKey, JSON.stringify(cakes));
-                    setCakeMap(cakes);
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            fetchDataFromServer();
+        let totalPages = Math.ceil(m_allProducts.length / numProductsPerPage);
+        for (let i = 1; i <= totalPages; i++) {
+            m_numOfPages.push(i);
         }
+        setNumOfPages(m_numOfPages);
+
+        setLoading(false);
 
     }, []);
+
+    const handlePageNumber = (pageNumber) => {
+        setLoading(true);
+        setCurrentPage(pageNumber);
+        let start = numProductsPerPage * (pageNumber - 1);
+        let end = numProductsPerPage * pageNumber;
+        setProductsPerPage(allProducts.slice(start, end));
+        setLoading(false);
+    };
 
     if (loading) {
         return <div>Loading...</div>
@@ -56,21 +135,7 @@ const Category = () => {
         );
     }
 
-    // Get params pass to this componen by using URL
-    const category = params.get('category');
-    
-    const products = [];
-    const categories = [];
-    let quantity = 0;
-
-    Object.entries(cakeMap).forEach(([m_category, m_products]) => {
-        if (m_category == category) {
-            quantity += m_products.length;
-            products.push(...m_products);
-        }
-
-        categories.push({name: m_category, quantity: m_products.length.toString()});
-    });
+    console.log("The pageNumbers: ", numOfPages);
 
     return (
         <>
@@ -84,7 +149,7 @@ const Category = () => {
                                     <li>
                                         <a href="index.html">Home</a>
                                     </li>
-                                    <li>{category}</li>
+                                    <li>{categoryName}</li>
                                 </ul>
                             </div>
                         </div>
@@ -101,7 +166,7 @@ const Category = () => {
                                 </div>
                             </div>
                             <div className="row">
-                                {products.map((product) => (
+                                {productsPerPage.map((product) => (
                                     <div className="col-md-4 col-sm-6 col-12">
                                         <div className="shop-box-layout1">
                                             <div className="mask-item bg--accent">
@@ -139,18 +204,11 @@ const Category = () => {
                                 ))}
                             </div>
                             <ul className="pagination-layout1">
-                                <li className="active">
-                                    <a href="#">1</a>
-                                </li>
-                                <li>
-                                    <a href="#">2</a>
-                                </li>
-                                <li>
-                                    <a href="#">3</a>
-                                </li>
-                                <li>
-                                    <a href="#">4</a>
-                                </li>
+                                {numOfPages.map((number) => (
+                                    <li><button className={currentPage == number ? "active" : ""} key={number} onClick={() => handlePageNumber(number)}>
+                                        {number}
+                                    </button></li>
+                                ))}
                             </ul>
                         </div>
                         <div className="col-lg-4 sidebar-widget-area sidebar-break-md">
@@ -167,55 +225,6 @@ const Category = () => {
                                                 </a>
                                             </li>                                            
                                         ))}
-                                    </ul>
-                                </div>
-                            </div>
-                            <div className="widget">
-                                <div className="section-heading heading-dark">
-                                    <h3 className="item-heading">BÁN CHẠY</h3>
-                                </div>
-                                <div className="widget-top-product">
-                                    <ul className="block-list">
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="single-shop.html" className="item-icon"><i className="flaticon-plus-1"></i></a>
-                                                <img src="img/product/top-product1.jpg" alt="Post"/>
-                                            </div>
-                                            <div className="item-content">
-                                                <h4 className="item-title"><a href="#">Kitchen Product</a></h4>
-                                                <div className="item-price"><span className="item-currency">$</span>15.00</div>
-                                            </div>
-                                        </li>
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="single-shop.html" className="item-icon"><i className="flaticon-plus-1"></i></a>
-                                                <img src="img/product/top-product2.jpg" alt="Post"/>
-                                            </div>
-                                            <div className="item-content">
-                                                <h4 className="item-title"><a href="#">Kitchen Product</a></h4>
-                                                <div className="item-price"><span className="item-currency">$</span>25.00</div>
-                                            </div>
-                                        </li>
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="single-shop.html" className="item-icon"><i className="flaticon-plus-1"></i></a>
-                                                <img src="img/product/top-product3.jpg" alt="Post"/>
-                                            </div>
-                                            <div className="item-content">
-                                                <h4 className="item-title"><a href="#">Kitchen Product</a></h4>
-                                                <div className="item-price"><span className="item-currency">$</span>29.00</div>
-                                            </div>
-                                        </li>
-                                        <li className="single-item">
-                                            <div className="item-img">
-                                                <a href="single-shop.html" className="item-icon"><i className="flaticon-plus-1"></i></a>
-                                                <img src="img/product/top-product4.jpg" alt="Post"/>
-                                            </div>
-                                            <div className="item-content">
-                                                <h4 className="item-title"><a href="#">Kitchen Product</a></h4>
-                                                <div className="item-price"><span className="item-currency">$</span>10.00</div>
-                                            </div>
-                                        </li>
                                     </ul>
                                 </div>
                             </div>
