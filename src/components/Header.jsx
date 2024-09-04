@@ -5,23 +5,29 @@ import SearchButton from './SearchButton';
 
 const Header = () => {
 
-    let userJwt = sessionStorage.getItem("cakeShopJwt");
-    let fullName;
-    let avatarUrl;
-    let isUserLogin = (userJwt != null);
-    {
-        fullName = sessionStorage.getItem("cakeShopFullName");
-        avatarUrl = sessionStorage.getItem("cakeShopAvatarUrl");
-    }
-
     const [categories, setCategories] = useState(null);
+    const [userInfor, setUserInfor] = useState(null);
+    const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
     const baseUrl = process.env.REACT_APP_SERVER_URL;
+    const userInforKey = process.env.USER_INFOR_KEY;
 
     useEffect(() => {
 
         setLoading(true);
+
+        const userInforInSession = sessionStorage.getItem(userInforKey);
+        const userInforInLocal = localStorage.getItem(userInforKey);
+
+        if (userInforInLocal) {
+            setUserInfor(JSON.parse(userInforInLocal));
+            setIsUserAuthenticated(true);
+        } else if (userInforInSession) {
+            setUserInfor(JSON.parse(userInforInSession));
+            setIsUserAuthenticated(true);
+        }
 
         const categoryKey = "categoryKey";
         const categoryData = sessionStorage.getItem(categoryKey);
@@ -30,7 +36,7 @@ const Header = () => {
             setCategories(JSON.parse(categoryData));
             setLoading(false);
         } else {
-            const fetchDataFromServer = async () => {
+            const fetchCaterogies = async () => {
 
                 try {
                     const url = baseUrl + '/common/category';
@@ -46,10 +52,17 @@ const Header = () => {
                 }
             };
 
-            fetchDataFromServer();
+            fetchCaterogies();
         }
 
     }, []);
+
+    const handleLogout = async (event) => {
+
+        event.preventDefault();
+        sessionStorage.removeItem(userInforKey);
+        setIsUserAuthenticated(false);
+    }
 
     if (loading) {
         return <div>Loading...</div>
@@ -91,107 +104,41 @@ const Header = () => {
                                         <li>
                                             <a href="/contact">Liên hệ</a>
                                         </li>
+                                        {isUserAuthenticated && userInfor.isAdmin &&
+                                            <li>
+                                                <a href="/add-product">Thêm sản phẩm</a>
+                                            </li>
+                                        }
                                     </ul>
                                 </nav>
                             </div>
                             <div className="col-lg-4 col-md-9 col-sm-8 col-8 d-flex align-items-center justify-content-end">
                                 <div className="nav-action-elements-layout1">
                                     <ul>
-                                        <li>
-                                            <div className="cart-wrap cart-on-mobile d-lg-none">                                            
-                                                <div className="cart-info">
-                                                    <i className="flaticon-shopping-bag"></i>
-                                                    <div className="cart-amount"><span className="item-currency">$</span>00</div>     
-                                                </div>                                   
-                                                <div className="cart-items">
-                                                    <div className="cart-item">
-                                                        <div className="cart-img">
-                                                            <a href="/">
-                                                                <img src="img/product/top-product1.jpg" alt="product" className="img-fluid"/>
-                                                            </a>
-                                                        </div>
-                                                        <div className="cart-title">
-                                                            <a href="/">Pressure</a>
-                                                            <span>Code: STPT601</span>
-                                                        </div>
-                                                        <div className="cart-quantity">X 1</div>
-                                                        <div className="cart-price">$249</div>
-                                                        <div className="cart-trash">
-                                                            <a href="/">
-                                                                <i className="far fa-trash-alt"></i>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    <div className="cart-item">
-                                                        <div className="cart-img">
-                                                            <a href="/">
-                                                                <img src="img/product/top-product2.jpg" alt="product" className="img-fluid"/>
-                                                            </a>
-                                                        </div>
-                                                        <div className="cart-title">
-                                                            <a href="/">Stethoscope</a>
-                                                            <span>Code: STPT602</span>
-                                                        </div>
-                                                        <div className="cart-quantity">X 1</div>
-                                                        <div className="cart-price">$189</div>
-                                                        <div className="cart-trash">
-                                                            <a href="/">
-                                                                <i className="far fa-trash-alt"></i>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    <div className="cart-item">
-                                                        <div className="cart-img">
-                                                            <a href="/">
-                                                                <img src="img/product/top-product3.jpg" alt="product" className="img-fluid"/>
-                                                            </a>
-                                                        </div>
-                                                        <div className="cart-title">
-                                                            <a href="/">Microscope</a>
-                                                            <span>Code: STPT603</span>
-                                                        </div>
-                                                        <div className="cart-quantity">X 2</div>
-                                                        <div className="cart-price">$379</div>
-                                                        <div className="cart-trash">
-                                                            <a href="/">
-                                                                <i className="far fa-trash-alt"></i>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    <div className="cart-item">
-                                                        <div className="cart-btn">
-                                                            <a href="/" className="item-btn">Đơn hàng</a>
-                                                            <a href="/" className="item-btn">Thanh toán</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        { isUserLogin? 
+                                        { isUserAuthenticated == true ? 
                                             <div>
                                                 <div className="nav-action-elements-layout1">
                                                     <ul className="site-menu">                                     
                                                         <li>
                                                             <a href="#" className="user-info">
-                                                                <img src={avatarUrl} alt="Avatar"/>
-                                                                <span>{fullName}</span>
+                                                                <img src={userInfor.avatarUrl} alt="Avatar"/>
+                                                                <span>{userInfor.fullName}</span>
                                                             </a>
-                                                            <ul className="dropdown-menu-col-1" id="dropdown-user">
+                                                            <ul className="dropdown-user-col-1" id="dropdown-user">
                                                                 <li>
                                                                     <a href="/Profile">
                                                                         Hồ sơ</a>
                                                                 </li>
                                                                 <li>
                                                                     <a href="/">Đơn hàng của tôi</a>
-                                                                </li>                                            
+                                                                </li>
+                                                                <li>
+                                                                    <button onClick={handleLogout} type="button">
+                                                                        Đăng xuất
+                                                                    </button>                                        
+                                                                 </li>                                         
                                                             </ul>
                                                         </li>
-                                                        <li>-</li>
-                                                        <li>
-                                                            <button type="button" className="login-btn" data-toggle="modal" data-target="#myModal">
-                                                                <a href="LogoutServlet" className="login-btn">Logout</a>
-                                                            </button>                                        
-                                                        </li>                                    
                                                     </ul>
                                                 </div>
                                             </div>
@@ -269,43 +216,7 @@ const Header = () => {
                                                                 <i className="far fa-trash-alt"></i>
                                                             </a>
                                                         </div>
-                                                    </div>
-                                                    <div className="cart-item">
-                                                        <div className="cart-img">
-                                                            <a href="/">
-                                                                <img src="img/product/top-product2.jpg" alt="product" className="img-fluid"/>
-                                                            </a>
-                                                        </div>
-                                                        <div className="cart-title">
-                                                            <a href="/">Stethoscope</a>
-                                                            <span>Code: STPT602</span>
-                                                        </div>
-                                                        <div className="cart-quantity">X 1</div>
-                                                        <div className="cart-price">$189</div>
-                                                        <div className="cart-trash">
-                                                            <a href="/">
-                                                                <i className="far fa-trash-alt"></i>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    <div className="cart-item">
-                                                        <div className="cart-img">
-                                                            <a href="/">
-                                                                <img src="img/product/top-product3.jpg" alt="product" className="img-fluid"/>
-                                                            </a>
-                                                        </div>
-                                                        <div className="cart-title">
-                                                            <a href="/">Microscope</a>
-                                                            <span>Code: STPT603</span>
-                                                        </div>
-                                                        <div className="cart-quantity">X 2</div>
-                                                        <div className="cart-price">$379</div>
-                                                        <div className="cart-trash">
-                                                            <a href="/">
-                                                                <i className="far fa-trash-alt"></i>
-                                                            </a>
-                                                        </div>
-                                                    </div>
+                                                    </div>                                                    
                                                     <div className="cart-item">
                                                         <div className="cart-btn">
                                                             <a href="/" className="item-btn">Đơn hàng</a>

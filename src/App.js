@@ -9,6 +9,8 @@ import SinglePage from './pages/SinglePage';
 import Shop from './pages/Shop';
 import Category from './pages/Category';
 import Contact from './pages/Contact';
+import RegisterAdmin from './pages/RegisterAdmin';
+import AddProduct from './pages/AddProduct';
 
 function App() {
 
@@ -24,6 +26,8 @@ function App() {
         {path: PathConstants.SHOP, element: <Shop />},
         {path: PathConstants.CATEGORY, element: <Category />},
         {path: PathConstants.CONTACT, element: <Contact />},
+        {path: PathConstants.ADD_PRODUCT, element: <AddProduct />},
+        {path: PathConstants.REGISTER_ADMIN, element: <RegisterAdmin />},
       ]
     },
   ]);

@@ -202,24 +202,14 @@ const SinglePage = () => {
                             </div>
                             <div className="widget">
                                 <div className="widget-ad">
-                                    <a href="/"><img src="img/admin/single/cake-1.jpg" alt="Ad" className="img-fluid"/></a>
+                                    <a href="/"><img src="img/admin/single-page/cake-1.jpg" alt="Ad" className="img-fluid"/></a>
                                 </div>                                
                             </div> 
                             <div className="widget">
                                 <div className="widget-ad">
-                                    <a href="/"><img src="img/admin/single/cake-2.jpg" alt="Ad" className="img-fluid"/></a>
-                                </div>                                
-                            </div> 
-                            <div className="widget">
-                                <div className="widget-ad">
-                                    <a href="/"><img src="img/admin/single/bread-1.jpg" alt="Ad" className="img-fluid"/></a>
-                                </div>                                
-                            </div> 
-                            <div className="widget">
-                                <div className="widget-ad">
-                                    <a href="/"><img src="img/admin/single/bread-2.jpg" alt="Ad" className="img-fluid"/></a>
-                                </div>                                
-                            </div> 
+                                    <a href="/"><img src="img/admin/single-page/bread-1.jpg" alt="Ad" className="img-fluid"/></a>
+                                </div>                            
+                            </div>
                         </div>
                     </div>
                 </div>

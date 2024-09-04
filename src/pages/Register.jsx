@@ -125,11 +125,11 @@ const Register = () => {
 
     return (
         <>
-            <section className="login-page-wrap padding-top-80 padding-bottom-50">
+            <section className="login-page-wrap padding-top-10 padding-bottom-18">
                 <div className="container">
                     <div className="row gutters-60">
                         <div className="col-lg-8">
-                            <div className="login-box-layout1">
+                            <div className="register-box-layout1">
                                 <div className="section-heading heading-dark">
                                     <h2 className="item-heading">Đăng Ký Tài Khoản</h2>
                                 </div>
@@ -138,8 +138,8 @@ const Register = () => {
                                         <p>Đăng ký thành công! Chuyển đến trang chủ sau {countdown} giây</p>
                                     </div>
                                 ) : (
-                                    <form className="login-form" onSubmit={handleSubmit}>
-                                        <div className="row">
+                                    <form className="register-form" onSubmit={handleSubmit}>
+                                        <div className="row row-box">
                                             <div className="col-md-7">
                                                 <label className="mb-3">Họ và tên</label>
                                                 <input 
@@ -213,18 +213,11 @@ const Register = () => {
                                         </div>
                                         {passMsg && <p style={{ color: 'red' }}>{passMsg}</p>}                 
                                         <div className="btn-area">
-                                            <button className="btn-fill btn-primary" type="submit" value="Login" disabled={loading}>Đăng Ký<i className="flaticon-next"></i></button>
+                                            <button className="btn-fill btn-primary" type="submit" value="Register" disabled={loading}>Đăng Ký<i className="flaticon-next"></i></button>
                                         </div>                             
                                     </form> 
                                 )}                            
                                     {errorMsg && <div className="alert alert-danger col-md-7" role="alert">{errorMsg}</div>}
-                                    <label>Đăng Nhập Bằng Tài Khoản Xã Hội</label>
-                                    <div className="login-box-social">
-                                        <ul>
-                                            <li><a href="/" className="facebook"><i className="fab fa-facebook-f"></i></a></li>
-                                            <li><a href="/" className="google"><i className="fab fa-google-plus-g"></i></a></li>
-                                        </ul>
-                                    </div>
                             </div>
                         </div>
                         <div className="col-lg-4 sidebar-widget-area sidebar-break-md">

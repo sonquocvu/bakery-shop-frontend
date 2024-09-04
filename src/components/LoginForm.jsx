@@ -9,11 +9,7 @@ const LoginForm = () => {
     const [password, setPassword] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
-    const [show, setShow] = useState(false);
     const [loading, setLoading] = useState(false);
-
-    const handleShow = () => setShow(true);
-    const handleClose = () => setShow(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -40,19 +36,14 @@ const LoginForm = () => {
 
             if (response.status === 200) {
 
-                // if (rememberMe) {
-                //     localStorage.setItem('jwt', data.jwt);
-                //     localStorage.setItem('fullName', data.fullName);
-                //     localStorage.setItem('avatarUrl', data.avatarUrl);
-                // } else {
-                    // sessionStorage.setItem('fullName', data.fullName);
-                    // sessionStorage.setItem('avatarUrl', data.avatarUrl);
-                    // sessionStorage.setItem('jwt', data.jwt);
-                // }
+                const userInfor = response.data;
+                const userInforKey = process.env.USER_INFOR_KEY;
 
-                sessionStorage.setItem('cakeShopFullName', response.data.fullName);
-                sessionStorage.setItem('cakeShopAvatarUrl', response.data.avatarUrl);
-                sessionStorage.setItem('cakeShopJwt', response.data.jwt);
+                if (rememberMe) {
+                    localStorage.setItem(userInforKey, JSON.stringify(userInfor));
+                } else {
+                    sessionStorage.setItem(userInforKey, JSON.stringify(userInfor));
+                }
 
                 window.location.reload();
 

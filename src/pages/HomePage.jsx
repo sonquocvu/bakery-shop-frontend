@@ -208,10 +208,7 @@ const HomePage = () => {
                                 ))}
                             </div>
                             <div className="ranna-ad-box">
-                                <a href="/"><img src="img/admin/cake-shop-1.jpg" alt="ad"/></a>
-                            </div>
-                            <div className="ranna-ad-box">
-                                <a href="/"><img src="img/admin/cake-shop-3.jpg" alt="ad"/></a>
+                                <a href="/"><img src="img/admin/home/cake-shop-3.jpg" alt="ad"/></a>
                             </div>
                         </div>
                         <div className="col-lg-4 sidebar-widget-area sidebar-break-md">
@@ -271,7 +268,7 @@ const HomePage = () => {
                             <div className="widget">
                                 <div className="widget-ad">
                                     <a href="/">
-                                        <img src="img/admin/cake-shop-2.jpg" alt="Ad" className="img-fluid"/>
+                                        <img src="img/admin/home/cake-shop-2.jpg" alt="Ad" className="img-fluid"/>
                                     </a>
                                 </div>
                             </div>

@@ -7,6 +7,8 @@ const PathConstants = {
     SHOP: '/shop',
     CONTACT: '/contact',
     SINGLEPAGE: '/single-page',
+    ADD_PRODUCT: '/add-product',
+    REGISTER_ADMIN: '/adminpageforregisteranditshouldbelonglikethis',
 }
 
 export default PathConstants;
