@@ -5,14 +5,18 @@ import SearchButton from './SearchButton';
 
 const Header = () => {
 
-    const [categories, setCategories] = useState(null);
-    const [userInfor, setUserInfor] = useState(null);
+    const [categories, setCategories] = useState([]);
+    const [userInfor, setUserInfor] = useState({});
+    const [shoppingCart, setShoppingCart] = useState([]);
     const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const baseUrl = process.env.REACT_APP_SERVER_URL;
     const userInforKey = process.env.USER_INFOR_KEY;
+
+    const categoryKey = "categoryKey";
+    const shoppingCartKey = "shoppingCart";
 
     useEffect(() => {
 
@@ -29,7 +33,6 @@ const Header = () => {
             setIsUserAuthenticated(true);
         }
 
-        const categoryKey = "categoryKey";
         const categoryData = sessionStorage.getItem(categoryKey);
 
         if (categoryData) {
@@ -61,7 +64,22 @@ const Header = () => {
 
         event.preventDefault();
         sessionStorage.removeItem(userInforKey);
+        localStorage.removeItem(userInforKey);
         setIsUserAuthenticated(false);
+    }
+    
+    const handleShoppingCart = () => {
+        const storedShoppingCart = JSON.parse(localStorage.getItem(shoppingCartKey)) || [];
+        setShoppingCart(storedShoppingCart);
+    }
+
+    const handleRemoveProductInShoppingCart = (event, id) => {
+        event.preventDefault();
+
+        const storedShoppingCart = JSON.parse(localStorage.getItem(shoppingCartKey))
+        const newStoredShoppingCart = storedShoppingCart.filter((product) => product.product.id !== id);
+        setShoppingCart(newStoredShoppingCart);
+        localStorage.setItem(shoppingCartKey, JSON.stringify(newStoredShoppingCart));
     }
 
     if (loading) {
@@ -106,7 +124,18 @@ const Header = () => {
                                         </li>
                                         {isUserAuthenticated && userInfor.isAdmin &&
                                             <li>
-                                                <a href="/add-product">Thêm sản phẩm</a>
+                                                <a href="/add-product">Quản lý sản phẩm</a>
+                                                <ul className="dropdown-menu-col-1">
+                                                    <li>
+                                                        <a href="/add-product">Thêm sản phẩm</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="/add-product">Xóa sản phẩm</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="/add-product">Chỉnh sửa sản phẩm</a>
+                                                    </li>  
+                                                </ul>                                                     
                                             </li>
                                         }
                                     </ul>
@@ -130,7 +159,7 @@ const Header = () => {
                                                                         Hồ sơ</a>
                                                                 </li>
                                                                 <li>
-                                                                    <a href="/">Đơn hàng của tôi</a>
+                                                                    <a href="/my-cart">Đơn hàng của tôi</a>
                                                                 </li>
                                                                 <li>
                                                                     <button onClick={handleLogout} type="button">
@@ -194,32 +223,35 @@ const Header = () => {
                                         </li>
                                         <li>
                                             <div className="cart-wrap d-none d-lg-block">                                            
-                                                <div className="cart-info">
+                                                <div className="cart-info" onMouseEnter={handleShoppingCart}>
                                                     <i className="flaticon-shopping-bag"></i>
-                                                    <div className="cart-amount"><span className="item-currency">$</span>00</div>     
-                                                </div>                                   
+                                                    <div className="cart-amount"><span className="item-currency">$</span></div>     
+                                                </div>                                 
                                                 <div className="cart-items">
-                                                    <div className="cart-item">
-                                                        <div className="cart-img">
-                                                            <a href="/">
-                                                                <img src="img/product/top-product1.jpg" alt="product" className="img-fluid"/>
-                                                            </a>
-                                                        </div>
-                                                        <div className="cart-title">
-                                                            <a href="/">Pressure</a>
-                                                            <span>Code: STPT601</span>
-                                                        </div>
-                                                        <div className="cart-quantity">X 1</div>
-                                                        <div className="cart-price">$249</div>
-                                                        <div className="cart-trash">
-                                                            <a href="/">
-                                                                <i className="far fa-trash-alt"></i>
-                                                            </a>
-                                                        </div>
-                                                    </div>                                                    
+                                                    {shoppingCart.map((product) => (
+                                                        <div className="cart-item">
+                                                            <div className="cart-img">
+                                                                <a href={`/single-page?category=${encodeURIComponent(product.product.category)}&id=${encodeURIComponent(product.product.id)}`}>
+                                                                    <img src={product.product.imageUrls[0]} alt="product" className="img-fluid" width="80"/>
+                                                                </a>
+                                                            </div>
+                                                            <div className="cart-title">
+                                                                <a href={`/single-page?category=${encodeURIComponent(product.product.category)}&id=${encodeURIComponent(product.product.id)}`}>
+                                                                    {product.product.name}
+                                                                </a>
+                                                            </div>
+                                                            <div className="cart-quantity">X {product.quantity}</div>
+                                                            <div className="cart-price">$ {product.product.price}</div>
+                                                            <div className="cart-trash">
+                                                                <button onClick={(event) => handleRemoveProductInShoppingCart(event, product.product.id)}>
+                                                                    <i className="far fa-trash-alt"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>  
+                                                    ))}                                            
                                                     <div className="cart-item">
                                                         <div className="cart-btn">
-                                                            <a href="/" className="item-btn">Đơn hàng</a>
+                                                            <a href="/my-cart" className="item-btn">Đơn hàng</a>
                                                             <a href="/" className="item-btn">Thanh toán</a>
                                                         </div>
                                                     </div>

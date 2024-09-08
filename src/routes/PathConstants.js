@@ -8,6 +8,7 @@ const PathConstants = {
     CONTACT: '/contact',
     SINGLEPAGE: '/single-page',
     ADD_PRODUCT: '/add-product',
+    CART: '/my-cart',
     REGISTER_ADMIN: '/adminpageforregisteranditshouldbelonglikethis',
 }
 

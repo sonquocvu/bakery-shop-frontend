@@ -11,6 +11,7 @@ const Category = () => {
     const [numProductsPerPage, setNumProductsPerPage] = useState(19);
     const [currentPage, setCurrentPage] = useState(1);
     const [numOfPages, setNumOfPages] = useState([]);
+    const [isNotiVisible, setIsNotiVisible] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const baseUrl = process.env.REACT_APP_SERVER_URL;
@@ -22,6 +23,7 @@ const Category = () => {
 
     const homePageDataKey = "cakeShopHomePageData";
     const categoryKey = "categoryKey";
+    const shoppingCartKey = "shoppingCart";
     const homeData = sessionStorage.getItem(homePageDataKey);
     const categoryData = sessionStorage.getItem(categoryKey);
 
@@ -123,6 +125,27 @@ const Category = () => {
         setLoading(false);
     };
 
+    const handleAddProductToCart = (event, product) => {
+        event.preventDefault();
+
+        let m_shoppingCart = JSON.parse(localStorage.getItem(shoppingCartKey)) || [];
+
+        const m_foundProduct = m_shoppingCart.find((m_product) => m_product.product.id === product.id);
+        if (m_foundProduct) {
+            m_foundProduct.quantity++;
+        } else {
+            m_shoppingCart.push({product: product, quantity: 1});
+        }
+
+        localStorage.setItem(shoppingCartKey, JSON.stringify(m_shoppingCart));
+
+        setIsNotiVisible(true);
+
+        setTimeout(() => {
+            setIsNotiVisible(false);
+        }, 1000);
+    };
+
     if (loading) {
         return <div>Loading...</div>
     }
@@ -175,19 +198,19 @@ const Category = () => {
                                                 </div>
                                                 <ul className="action-items">
                                                     <li>
-                                                        <a href="#">
+                                                        <button onClick={(event) => handleAddProductToCart(event, product)}>
                                                             <i className="fas fa-shopping-cart"></i>
-                                                        </a>
+                                                        </button>
+                                                        {isNotiVisible && 
+                                                            <div className="notification">
+                                                                <p>Chọn sản phẩm thành công</p>
+                                                            </div>
+                                                        }                                                     
                                                     </li>
                                                     <li>
-                                                        <a href="#">
-                                                            <i className="fas fa-exchange-alt"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#">
+                                                        <button>
                                                             <i className="fas fa-heart"></i>
-                                                        </a>
+                                                        </button>
                                                     </li>
                                                 </ul>
                                             </div>

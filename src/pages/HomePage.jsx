@@ -3,8 +3,8 @@ import axios from 'axios';
 
 const HomePage = () => {
 
-    const [productMap, setProductMap] = useState(null);
-    const [categories, setCategories] = useState(null);
+    const [productMap, setProductMap] = useState({});
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const baseUrl = process.env.REACT_APP_SERVER_URL;

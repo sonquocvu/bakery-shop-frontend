@@ -3278,6 +3278,9 @@ ul {
 	right: 0;
 	top: 57px;
 	min-width: 385px;
+	width: 100%;
+	max-height: 400px;
+	overflow-y: auto;
 	color: #111111;
 	-webkit-transform: perspective(400) rotate3d(1, 0, 0, -15deg);
 	-webkit-transform-origin: 50% 0;
@@ -3329,6 +3332,7 @@ ul {
 
 .cart-wrap .cart-items .cart-item .cart-title {
 	text-align: left;
+	width: 30%;
 }
 
 .cart-wrap .cart-items .cart-item .cart-title a {
@@ -3351,8 +3355,20 @@ ul {
 	font-size: 14px;
 }
 
-.cart-wrap .cart-items .cart-item .cart-trash a {
+.cart-wrap .cart-items .cart-item .cart-quantity {
+	text-align: left;
+	width: 15%;
+}
+
+.cart-wrap .cart-items .cart-item .cart-price {
+	text-align: left;
+	width: 30%;
+}
+
+.cart-wrap .cart-items .cart-item .cart-trash button {
 	color: #111111;
+	background-color: transparent;
+	border-color: transparent;
 	-webkit-transition: all 0.3s ease-out;
 	-moz-transition: all 0.3s ease-out;
 	-ms-transition: all 0.3s ease-out;
@@ -3360,7 +3376,7 @@ ul {
 	transition: all 0.3s ease-out;
 }
 
-.cart-wrap .cart-items .cart-item .cart-trash a:hover {
+.cart-wrap .cart-items .cart-item .cart-trash button:hover {
 	color: #ff0600;
 }
 
@@ -5760,11 +5776,37 @@ ul {
 	transition: all 0.3s ease-out;
 }
 
+.shop-box-layout1 .mask-item .action-items li button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 45px;
+	width: 45px;
+	background-color: #ffffff;
+	color: #444444;
+	text-align: center;
+	border: 2px solid #ffffff;
+	-webkit-transition: all 0.3s ease-out;
+	-moz-transition: all 0.3s ease-out;
+	-ms-transition: all 0.3s ease-out;
+	-o-transition: all 0.3s ease-out;
+	transition: all 0.3s ease-out;
+}
+
 .shop-box-layout1 .mask-item .action-items li a i {
 	font-size: 17px;
 }
 
+.shop-box-layout1 .mask-item .action-items li button i {
+	font-size: 17px;
+}
+
 .shop-box-layout1 .mask-item .action-items li a:hover {
+	background-color: transparent;
+	color: #ffffff;
+}
+
+.shop-box-layout1 .mask-item .action-items li button:hover {
 	background-color: transparent;
 	color: #ffffff;
 }
@@ -12503,6 +12545,8 @@ lam edit user dropdown (in header)
 =============================================*/
 .linkStyle {
     color: #4b4a5b;
+	background-color: white;
+	border-color: transparent;
 	display: inline-block;
 	margin-right: 15px;
 }
@@ -12802,3 +12846,15 @@ lam edit user dropdown (in header)
 	color: #d50000;
 }
 
+.notification {
+	position: fixed;
+	bottom: 50px;
+	right: 10px;
+	width: 220px;
+	background-color: #4caf50;
+	color: white;
+	padding: 5px;
+	border-radius: 5px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	z-index: 1000;
+}
