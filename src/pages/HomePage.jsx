@@ -7,14 +7,15 @@ const HomePage = () => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
     const baseUrl = process.env.REACT_APP_SERVER_URL;
+    const homePageDataKey = process.env.REACT_APP_HOME_PAGE_DATA_KEY;
+    const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
 
     useEffect(() => {
 
         setLoading(true);
 
-        const homePageDataKey = "cakeShopHomePageData";
-        const categoryKey = "categoryKey";
         const homeData = sessionStorage.getItem(homePageDataKey);
         const categoryData = sessionStorage.getItem(categoryKey);
 

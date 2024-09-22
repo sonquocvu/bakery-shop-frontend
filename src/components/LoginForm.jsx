@@ -37,7 +37,7 @@ const LoginForm = () => {
             if (response.status === 200) {
 
                 const userInfor = response.data;
-                const userInforKey = process.env.USER_INFOR_KEY;
+                const userInforKey = process.env.REACT_APP_USER_INFOR_KEY;
 
                 if (rememberMe) {
                     localStorage.setItem(userInforKey, JSON.stringify(userInfor));
@@ -56,7 +56,7 @@ const LoginForm = () => {
                 setErrorMsg("Tài khoản hoặc mật khẩu không đúng, vui lòng đăng nhập lại");
             } else {
                 setErrorMsg("Lỗi hệ thống! vui lòng đăng nhập lại");
-            }            
+            }         
         }
     }
 
@@ -73,7 +73,7 @@ const LoginForm = () => {
                             <button type="button" className="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div className="modal-body">
-                            <form className="login-form" onSubmit={handleSubmit}>
+                            <form className="login-form" onSubmit={(e) => handleSubmit(e)}>
                                 <input 
                                     className="main-input-box" 
                                     type="text" 

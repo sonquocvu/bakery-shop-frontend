@@ -8,7 +8,9 @@ const SinglePage = () => {
     const [newFoods, setNewFoods] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
     const baseUrl = process.env.REACT_APP_SERVER_URL;
+    const homePageDataKey = process.env.REACT_APP_HOME_PAGE_DATA_KEY;
 
     // Get params pass to this componen by using URL
     const location = useLocation();
@@ -25,7 +27,6 @@ const SinglePage = () => {
         let m_singleFood = null;
         let m_newFoods = [];
 
-        const homePageDataKey = "cakeShopHomePageData";
         const homeData = sessionStorage.getItem(homePageDataKey);
 
         if (homeData) {

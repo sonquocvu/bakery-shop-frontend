@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import axios from 'axios';
 
-const AddProduct = () => {
+const UpdateProduct = () => {
 
     const [productName, setProductName] = useState('');
     const [description, setDescription] = useState('');
@@ -115,6 +115,29 @@ const AddProduct = () => {
         }
     }
 
+    const handleSelectCategory = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        const m_category = e.target.value;
+        setCategory(m_category);
+
+        try {
+            const url = baseUrl + '/common/products-name';
+            const response = await axios.get(url, {
+                params: {
+                    categoryName: m_category
+                }
+            });
+            const m_productsName = response.data;
+
+            setProducts(m_productsName);
+        } catch (error) {
+            setErrorDelete("Không tải được sản phẩm, vui lòng thử lại");
+        } finally {
+            setLoading(false);
+        }
+    }
+
     if (loading) {
         return <div>Loading...</div>
     }
@@ -152,30 +175,29 @@ const AddProduct = () => {
                         <div className="col-lg-8">
                             <form className="submit-recipe-form">
                                 <div className="form-group">
-                                    <label>Tên sản phẩm</label>
-                                    <input  type="text" 
-                                            placeholder="Tên sản phẩm" 
-                                            className="form-control" 
-                                            name="productName"
-                                            value={productName}
-                                            onChange={(e) => setProductName(e.target.value)}
-                                            data-error="Chưa điền tên sản phẩm" 
-                                            required 
-                                    />
-                                    <div className="help-block with-errors"></div>
-                                </div>
-                                <div className="form-group">
                                     <label>Chọn danh mục</label>
                                     <select className="form-control add-product-select-option col-md-12" 
                                             name="filter-by"
                                             value={category}
-                                            onChange={(e) => setCategory(e.target.value)}
+                                            onChange={(e) => handleSelectCategory(e)}
                                     >                                     
                                         {categories.map((category) => (
                                             <option value={category.name}>{category.name}</option>
                                         ))}
                                     </select>
                                 </div>
+                                <div className="form-group">
+                                    <label>Chọn sản phẩm</label>
+                                    <select className="form-control add-product-select-option col-md-12" 
+                                            name="filter-by"
+                                            value={product}
+                                            onChange={(e) => setProduct(e.target.value)}
+                                    >                                     
+                                        {products.map((product) => (
+                                            <option value={product}>{product}</option>
+                                        ))}
+                                    </select>
+                                </div>  
                                 <div className="form-group">
                                     <label>Giá sản phẩm</label>
                                     <input  type="number" 
@@ -239,4 +261,4 @@ const AddProduct = () => {
     );
 }
 
-export default AddProduct;
+export default UpdateProduct;

@@ -6,7 +6,7 @@ const MyCart = () => {
     const [shoppingCart, setShoppingCart] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const shoppingCartKey = "shoppingCart";
+    const shoppingCartKey = process.env.REACT_APP_SHOPPING_CART_KEY;
 
     const currentDateTime = new Date().toLocaleDateString();
 

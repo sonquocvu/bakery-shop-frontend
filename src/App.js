@@ -11,6 +11,8 @@ import Category from './pages/Category';
 import Contact from './pages/Contact';
 import RegisterAdmin from './pages/RegisterAdmin';
 import AddProduct from './pages/AddProduct';
+import DeleteProduct from './pages/DeleteProduct';
+import UpdateProduct from './pages/UpdateProduct';
 import MyCart from './pages/MyCart';
 
 function App() {
@@ -28,6 +30,8 @@ function App() {
         {path: PathConstants.CATEGORY, element: <Category />},
         {path: PathConstants.CONTACT, element: <Contact />},
         {path: PathConstants.ADD_PRODUCT, element: <AddProduct />},
+        {path: PathConstants.DELETE_PRODUCT, element: <DeleteProduct />},
+        {path: PathConstants.UPDATE_PRODUCT, element: <UpdateProduct />},
         {path: PathConstants.CART, element: <MyCart />},
         {path: PathConstants.REGISTER_ADMIN, element: <RegisterAdmin />},
       ]

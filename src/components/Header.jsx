@@ -13,10 +13,9 @@ const Header = () => {
     const [error, setError] = useState(null);
 
     const baseUrl = process.env.REACT_APP_SERVER_URL;
-    const userInforKey = process.env.USER_INFOR_KEY;
-
-    const categoryKey = "categoryKey";
-    const shoppingCartKey = "shoppingCart";
+    const userInforKey = process.env.REACT_APP_USER_INFOR_KEY;
+    const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
+    const shoppingCartKey = process.env.REACT_APP_SHOPPING_CART_KEY;
 
     useEffect(() => {
 
@@ -94,6 +93,11 @@ const Header = () => {
         );
     }
 
+    console.log("The category key: ", categoryKey);
+    console.log("The shopping key: ", shoppingCartKey);
+    console.log("The user key: ", userInforKey);
+    console.log("The base url: ", baseUrl);
+
     return (
         <>
             <header className="header-one">
@@ -130,10 +134,10 @@ const Header = () => {
                                                         <a href="/add-product">Thêm sản phẩm</a>
                                                     </li>
                                                     <li>
-                                                        <a href="/add-product">Xóa sản phẩm</a>
+                                                        <a href="/delete-product">Xóa sản phẩm</a>
                                                     </li>
                                                     <li>
-                                                        <a href="/add-product">Chỉnh sửa sản phẩm</a>
+                                                        <a href="/update-product">Chỉnh sửa sản phẩm</a>
                                                     </li>  
                                                 </ul>                                                     
                                             </li>

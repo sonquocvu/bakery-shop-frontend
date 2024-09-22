@@ -14,16 +14,17 @@ const Category = () => {
     const [isNotiVisible, setIsNotiVisible] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const baseUrl = process.env.REACT_APP_SERVER_URL;
 
     // Get params pass to this componen by using URL
     const location = useLocation();
     const params = new URLSearchParams(location.search);
     const categoryName = params.get('category');
 
-    const homePageDataKey = "cakeShopHomePageData";
-    const categoryKey = "categoryKey";
-    const shoppingCartKey = "shoppingCart";
+    const baseUrl = process.env.REACT_APP_SERVER_URL;
+    const homePageDataKey = process.env.REACT_APP_HOME_PAGE_DATA_KEY;
+    const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
+    const shoppingCartKey = process.env.REACT_APP_SHOPPING_CART_KEY;
+
     const homeData = sessionStorage.getItem(homePageDataKey);
     const categoryData = sessionStorage.getItem(categoryKey);
 
@@ -158,7 +159,7 @@ const Category = () => {
         );
     }
 
-    console.log("The pageNumbers: ", numOfPages);
+    console.log("The category key: ", categoryKey);
 
     return (
         <>

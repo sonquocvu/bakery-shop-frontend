@@ -14,10 +14,11 @@ const Shop = () => {
     const [isNotiVisible, setIsNotiVisible] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const baseUrl = process.env.REACT_APP_SERVER_URL;
 
-    const categoryKey = "categoryKey";
-    const shoppingCartKey = "shoppingCart";
+    const baseUrl = process.env.REACT_APP_SERVER_URL;
+    const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
+    const shoppingCartKey = process.env.REACT_APP_SHOPPING_CART_KEY;
+
     const categoryData = sessionStorage.getItem(categoryKey);
 
     const fetchProducts = async (page, pageNumber) => {
