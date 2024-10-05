@@ -23,6 +23,7 @@ const Header = () => {
 
         const userInforInSession = sessionStorage.getItem(userInforKey);
         const userInforInLocal = localStorage.getItem(userInforKey);
+        const categoryData = sessionStorage.getItem(categoryKey);
 
         if (userInforInLocal) {
             setUserInfor(JSON.parse(userInforInLocal));
@@ -32,13 +33,11 @@ const Header = () => {
             setIsUserAuthenticated(true);
         }
 
-        const categoryData = sessionStorage.getItem(categoryKey);
+        const maybeFetchGeneralData = async () => {
 
-        if (categoryData) {
-            setCategories(JSON.parse(categoryData));
-            setLoading(false);
-        } else {
-            const fetchCaterogies = async () => {
+            if (categoryData) {
+                setCategories(JSON.parse(categoryData));
+            } else {
 
                 try {
                     const url = baseUrl + '/common/category';
@@ -49,13 +48,13 @@ const Header = () => {
                     setCategories(m_categories);
                 } catch (error) {
                     setError("Không tải được trang web, vui lòng thử lại!");
-                } finally {
-                    setLoading(false);
                 }
-            };
+            }
 
-            fetchCaterogies();
-        }
+            setLoading(false);
+        };
+
+        maybeFetchGeneralData();
 
     }, []);
 
@@ -65,6 +64,7 @@ const Header = () => {
         sessionStorage.removeItem(userInforKey);
         localStorage.removeItem(userInforKey);
         setIsUserAuthenticated(false);
+        window.location.reload();
     }
     
     const handleShoppingCart = () => {
@@ -92,11 +92,6 @@ const Header = () => {
             </div>
         );
     }
-
-    console.log("The category key: ", categoryKey);
-    console.log("The shopping key: ", shoppingCartKey);
-    console.log("The user key: ", userInforKey);
-    console.log("The base url: ", baseUrl);
 
     return (
         <>

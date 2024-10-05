@@ -4,9 +4,9 @@ import axios from 'axios';
 
 const Category = () => {
 
-    const [allProducts, setAllProducts] = useState(null);
-    const [productsPerPage, setProductsPerPage] = useState(null);
-    const [categories, setCategories] = useState(null);
+    const [allProducts, setAllProducts] = useState([]);
+    const [productsPerPage, setProductsPerPage] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [quantity, setQuantity] = useState(0);
     const [numProductsPerPage, setNumProductsPerPage] = useState(19);
     const [currentPage, setCurrentPage] = useState(1);
@@ -31,100 +31,92 @@ const Category = () => {
     useEffect(() => {
         setLoading(true);
 
-        let m_categories = null;
-        let m_productMap = null;
-        let m_allProducts = [];
-        let m_numOfPages = [];
-        let m_quantity = 0;
-        
-        const fetchCategories = async () => {
+        const maybeFetchGeneralData = async () => {
 
-            try {
-                const url = baseUrl + '/common/category';
-                const response = await axios.get(url);
-                m_categories = response.data;
+            const fetchProducts = async () => {
+
+                try {
+                    const url = baseUrl + '/common/category/product';
+                    const response = await axios.get(url, {
+                        params: {
+                            category: categoryName
+                        }
+                    });
     
-                sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
+                    const m_allProductsOfCategory = response.data;                
+                    setAllProducts(m_allProductsOfCategory);
+                    setProductsPerPage(m_allProductsOfCategory.slice(0, numProductsPerPage));
+                    calculateNumOfPages(m_allProductsOfCategory.length);
+                } catch (error) {
+                    setError("Không tải được trang web, vui lòng thử lại!");
+                }
+            };
+    
+            let m_categories = [];
+            let m_quantity = 0;
+    
+            if (categoryData) {       
+                m_categories = JSON.parse(categoryData);
                 setCategories(m_categories);
-            } catch (error) {
-                setError("Không tải được trang web, vui lòng thử lại!");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        const fetchProducts = async () => {
-
-            try {
-                const url = baseUrl + '/common/category/product';
-                const response = await axios.get(url, {
-                    params: {
-                        category: categoryName
-                    }
-                });
-                m_allProducts = response.data;
+            }  else {
     
-                setAllProducts(m_allProducts);
-            } catch (error) {
-                setError("Không tải được trang web, vui lòng thử lại!");
-            } finally {
-                setLoading(false);
+                try {
+                    const url = baseUrl + '/common/category';
+                    const response = await axios.get(url);
+    
+                    m_categories = response.data;
+                    sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
+                    setCategories(m_categories);
+                } catch (error) {
+                    setError("Không tải được trang web, vui lòng thử lại!");
+                }
             }
-        };
 
-        if (categoryData) {
-            m_categories = JSON.parse(categoryData);
-            setCategories(m_categories);
-            setLoading(false);
-        }  else {
-            fetchCategories();
-        }
-
-        m_categories.map(category => {
-            if (category.name == categoryName) {
-                m_quantity = category.quantity;
+            const m_category = m_categories.find(cat => cat.name === categoryName);
+            if (m_category) {
+                m_quantity = m_category.quantity;
                 setQuantity(m_quantity);
             }
-        });
-
-        if (homeData) {
-            m_productMap = JSON.parse(homeData);
-            m_allProducts = m_productMap[categoryName];
-            
-            if (m_allProducts.length < m_quantity)
-            {
-                fetchProducts();
+    
+            if (homeData) {
+                
+                const m_productsFromHomeData = JSON.parse(homeData);
+                const m_allProductsOfCategory = m_productsFromHomeData[categoryName];
+                
+                if (m_allProductsOfCategory == null || m_allProductsOfCategory.length < m_quantity)
+                {
+                    fetchProducts();
+                } else {
+                    setAllProducts(m_allProductsOfCategory);
+                    setProductsPerPage(m_allProductsOfCategory.slice(0, numProductsPerPage));
+                    calculateNumOfPages(m_allProductsOfCategory.length);
+                }
             } else {
-                setAllProducts(m_allProducts);
+                fetchProducts();
             }
-        } else {
-            fetchProducts();
-        }
 
-        setLoading(true);
+            setLoading(false);
+        };
 
-        let start = numProductsPerPage * (currentPage - 1);
-        let end = numProductsPerPage * currentPage;
-        setProductsPerPage(m_allProducts.slice(start, end));
-
-        let totalPages = Math.ceil(m_allProducts.length / numProductsPerPage);
-        for (let i = 1; i <= totalPages; i++) {
-            m_numOfPages.push(i);
-        }
-        setNumOfPages(m_numOfPages);
-
-        setLoading(false);
-
+        maybeFetchGeneralData();
+        
     }, []);
 
     const handlePageNumber = (pageNumber) => {
-        setLoading(true);
         setCurrentPage(pageNumber);
         let start = numProductsPerPage * (pageNumber - 1);
         let end = numProductsPerPage * pageNumber;
         setProductsPerPage(allProducts.slice(start, end));
-        setLoading(false);
     };
+
+    const calculateNumOfPages = (totalProducts) => {
+        const m_totalPages = Math.ceil(totalProducts / numProductsPerPage);
+        const m_numOfPages = [];
+        for (let i = 1; i <= m_totalPages; i++) {
+            m_numOfPages.push(i);
+        }
+        setNumOfPages(m_numOfPages);  
+    }
 
     const handleAddProductToCart = (event, product) => {
         event.preventDefault();
@@ -158,8 +150,6 @@ const Category = () => {
             </div>
         );
     }
-
-    console.log("The category key: ", categoryKey);
 
     return (
         <>
@@ -254,7 +244,7 @@ const Category = () => {
                             </div>
                             <div className="widget">
                                 <div className="widget-ad">
-                                    <a href="/"><img src="img/admin/single/bread-1.jpg" alt="quảng cáo" className="img-fluid"/></a>
+                                    <a href="/"><img src="img/admin/single-page/bread-1.jpg" alt="quảng cáo" className="img-fluid"/></a>
                                 </div>
                             </div>
                         </div>

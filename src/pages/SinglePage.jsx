@@ -20,78 +20,76 @@ const SinglePage = () => {
 
     const currentDateTime = new Date().toLocaleDateString();
 
+    const homeData = sessionStorage.getItem(homePageDataKey);
+
     useEffect(() => {
 
         setLoading(true);
-        let m_foodMap = null;
-        let m_singleFood = null;
-        let m_newFoods = [];
 
-        const homeData = sessionStorage.getItem(homePageDataKey);
+        const maybeFetchGeneralData = async () => {
 
-        if (homeData) {
-            m_foodMap = JSON.parse(homeData)
-            setLoading(false);
-        } else {
-            const fetchHomeData = async () => {
+            let m_foodMap = null;
+            let m_singleFood = null;
+            let m_newFoods = [];
+
+            if (homeData) {
+                m_foodMap = JSON.parse(homeData)
+            } else {
 
                 try {
                     const url = baseUrl + '/common/home';
                     const response = await axios.get(url);
+
                     m_foodMap = response.data;
-        
                     sessionStorage.setItem(homePageDataKey, JSON.stringify(m_foodMap));
                 } catch (error) {
                     setError("Không tải được trang web, vui lòng thử lại!");
-                } finally {
-                    setLoading(false);
                 }
-            };
-
-            fetchHomeData();
-        }
-
-        Object.entries(m_foodMap).forEach(([category, foods]) => {
-            m_newFoods.push(...foods.slice(0, 1));
-        });
-        setNewFoods(m_newFoods);
-
-        // Get single food
-        const foods = m_foodMap[category];
-        foods.forEach(food => {
-            if (food.id == productId) {
-                m_singleFood = food;
             }
-        })
-
-        if (m_singleFood) {
-            setSingleFood(m_singleFood);
-        } else {
-            const fetchSingleFood = async () => {
+    
+            // Get new foods to show on
+            Object.entries(m_foodMap).forEach(([category, foods]) => {
+                m_newFoods.push(...foods.slice(0, 1));
+            });
+            setNewFoods(m_newFoods);
+    
+            // Get single food
+            const foods = m_foodMap[category];
+            if (foods) {
+                m_singleFood = foods.find(m_food => m_food.id == productId);
+                // foods.forEach(food => {
+                //     if (food.id == productId) {
+                //         m_singleFood = food;
+                //     }
+                // })
+            }
+    
+            if (m_singleFood) {
+                setSingleFood(m_singleFood);
+            } else {
 
                 try {
                     const url = baseUrl + '/common/single/product';
-                    const encodedCat = encodeURIComponent(category);
                     const response = await axios.get(url, {
                         params: {
-                            category: encodedCat,
+                            category: category,
                             productId: productId
                         }
                     });
+
                     m_singleFood = response.data;
                     setSingleFood(m_singleFood);
-        
-                    m_foodMap[category].push(m_singleFood);
-                    sessionStorage.setItem(homePageDataKey, JSON.stringify(m_foodMap));
+                    const new_foodMap = {...m_foodMap, [category]: [m_singleFood]};
+                    sessionStorage.setItem(homePageDataKey, JSON.stringify(new_foodMap));
                 } catch (error) {
                     setError("Không tải được trang web, vui lòng thử lại!");
-                } finally {
-                    setLoading(false);
                 }
-            };
+            }
 
-            fetchSingleFood();
-        }
+            setLoading(false);
+        };
+
+        maybeFetchGeneralData();
 
     }, []);
 
@@ -107,6 +105,8 @@ const SinglePage = () => {
         );
     }
 
+    console.log("The saved single product: ", singleFood);
+    
     return (
         <>
             <section className="single-recipe-wrap-layout1 padding-top-15 padding-bottom-50">

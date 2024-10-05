@@ -30,30 +30,44 @@ const DeleteProduct = () => {
             setUserInfor(JSON.parse(userInforInLocal));
         } else if (userInforInSession) {
             setUserInfor(JSON.parse(userInforInSession));
-        }        
+        }
 
-        if (categoryData) {
-            setCategories(JSON.parse(categoryData));
-            setLoading(false);
-        } else {
-            const fetchCaterogies = async () => {
+        const maybeFetchGeneralData = async () => {
+
+            if (categoryData) {
+                setCategories(JSON.parse(categoryData));
+            } else {
 
                 try {
                     const url = baseUrl + '/common/category';
                     const response = await axios.post(url);
+
                     const m_categories = response.data;
-        
                     sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
                     setCategories(m_categories);
                 } catch (error) {
                     setError("Không tải được trang web, vui lòng thử lại!");
-                } finally {
-                    setLoading(false);
                 }
-            };
+            }
+    
+            try {
+                const url = baseUrl + '/common/products-name';
+                const response = await axios.get(url, {
+                    params: {
+                        categoryName: category
+                    }
+                });
 
-            fetchCaterogies();
-        }
+                const m_productNames = response.data;
+                setProducts(m_productNames);
+            } catch (error) {
+                setErrorDelete("Không tải được sản phẩm, vui lòng thử lại");
+            }
+
+            setLoading(false);
+        };
+
+        maybeFetchGeneralData();
 
     }, []);
 

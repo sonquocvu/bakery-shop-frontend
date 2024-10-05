@@ -5,15 +5,16 @@ const UpdateProduct = () => {
 
     const [productName, setProductName] = useState('');
     const [description, setDescription] = useState('');
-    const [price, setPrice] = useState('');
+    const [price, setPrice] = useState(0);
     const [category, setCategory] = useState('Signature');
     const [selectedImages, setSelectedImages] = useState([]);
     const [categories, setCategories] = useState([]);
     const [userInfor, setUserInfor] = useState({});
+    const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [errorSubmit, setErrorSubmit] = useState(null);
-    const [successSubmit, setSuccessSubmit] = useState(null);
+    const [errorUpdate, setErrorUpdate] = useState(null);
+    const [successUpdate, setSuccessUpdate] = useState(null);
 
     const selectImagesRef = useRef(null);
 
@@ -36,28 +37,43 @@ const UpdateProduct = () => {
             setUserInfor(JSON.parse(userInforInSession));
         }
 
-        if (categoryData) {
-            setCategories(JSON.parse(categoryData));
-            setLoading(false);
-        } else {
-            const fetchCaterogies = async () => {
+        const maybeFetchGeneralData = async () => {
+
+            if (categoryData) {
+                setCategories(JSON.parse(categoryData));
+            } else {
 
                 try {
                     const url = baseUrl + '/common/category';
                     const response = await axios.post(url);
+
                     const m_categories = response.data;
-        
                     sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
                     setCategories(m_categories);
                 } catch (error) {
                     setError("Không tải được trang web, vui lòng thử lại!");
-                } finally {
-                    setLoading(false);
                 }
-            };
+            }
+    
+            try {
+                const url = baseUrl + '/common/products-name';
+                const response = await axios.get(url, {
+                    params: {
+                        categoryName: category
+                    }
+                });
+                
+                const m_productsName = response.data;
+                setProducts(m_productsName);
+                setProductName(m_productsName[0]);
+            } catch (error) {
+                setErrorUpdate("Không tải được sản phẩm, vui lòng thử lại");
+            }
 
-            fetchCaterogies();
-        }
+            setLoading(false);
+        };
+
+        maybeFetchGeneralData();
 
     }, []);
 
@@ -72,26 +88,24 @@ const UpdateProduct = () => {
         setSelectedImages(files);
     }
 
-    const handleSubmitNewProduct = async (e) => {
+    const handleUpdateProduct = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setErrorSubmit(null);
-        setSuccessSubmit(null);
+        setErrorUpdate(null);
+        setSuccessUpdate(null);
 
         const formData = new FormData();
         formData.append('productName', productName);
         formData.append('description', description);
         formData.append('price', price);
-        formData.append('category', category);
-        formData.append('userId', userInfor.id);
 
         for(let i = 0; i < selectedImages.length; i++) {
             formData.append('images', selectedImages[i]);
         }
 
         try {
-            const url = baseUrl + '/admin/add-product';
-            const response = await axios.post(url, formData, {
+            const url = baseUrl + '/admin/update-product';
+            const response = await axios.put(url, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${userInfor.jwt}`
@@ -100,7 +114,7 @@ const UpdateProduct = () => {
 
             if (response.status === 200) {
                 sessionStorage.removeItem(homePageDataKey);
-                setSuccessSubmit("Thêm sản phẩm mới thành công");
+                setSuccessUpdate("Cập nhật sản phẩm mới thành công");
             }
             
         } catch (error) {
@@ -109,7 +123,8 @@ const UpdateProduct = () => {
                 localStorage.removeItem(userInforKey);
                 window.location.reload();
             }
-            setErrorSubmit("Không tạo được sản phẩm mới, vui lòng thử lại");
+            setErrorUpdate("Không cập nhật được sản phẩm mới, vui lòng thử lại");
+            console.log(error);
         } finally {
             setLoading(false);
         }
@@ -131,8 +146,9 @@ const UpdateProduct = () => {
             const m_productsName = response.data;
 
             setProducts(m_productsName);
+            setProductName(m_productsName[0]);
         } catch (error) {
-            setErrorDelete("Không tải được sản phẩm, vui lòng thử lại");
+            setErrorUpdate("Không tải được sản phẩm, vui lòng thử lại");
         } finally {
             setLoading(false);
         }
@@ -185,19 +201,19 @@ const UpdateProduct = () => {
                                             <option value={category.name}>{category.name}</option>
                                         ))}
                                     </select>
-                                </div>
+                                </div>                          
                                 <div className="form-group">
                                     <label>Chọn sản phẩm</label>
                                     <select className="form-control add-product-select-option col-md-12" 
                                             name="filter-by"
-                                            value={product}
-                                            onChange={(e) => setProduct(e.target.value)}
+                                            value={productName}
+                                            onChange={(e) => setProductName(e.target.value)}
                                     >                                     
                                         {products.map((product) => (
                                             <option value={product}>{product}</option>
                                         ))}
                                     </select>
-                                </div>  
+                                </div>
                                 <div className="form-group">
                                     <label>Giá sản phẩm</label>
                                     <input  type="number" 
@@ -231,7 +247,7 @@ const UpdateProduct = () => {
                                                     <li>
                                                         <img 
                                                         src={URL.createObjectURL(image)}
-                                                        alt="Sản phẩm mới"
+                                                        alt="Cập nhật hình ảnh cho sản phẩm"
                                                         width="100"/>                                                        
                                                     </li>
                                             ))}
@@ -249,9 +265,9 @@ const UpdateProduct = () => {
                                         />
                                     </div>
                                 </div>
-                                <button type="submit" className="btn-submit" onClick={(e) => handleSubmitNewProduct(e)}>Thêm Sản Phẩm</button>
-                                {errorSubmit && <p style={{ color: 'red' }}>{errorSubmit}</p>}
-                                {successSubmit && <p style={{ color: 'green' }}>{successSubmit}</p>}
+                                <button type="submit" className="btn-submit" onClick={(e) => handleUpdateProduct(e)}>Update Sản Phẩm</button>
+                                {errorUpdate && <p style={{ color: 'red' }}>{errorUpdate}</p>}
+                                {successUpdate && <p style={{ color: 'green' }}>{successUpdate}</p>}
                             </form>
                         </div>                    
                     </div>

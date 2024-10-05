@@ -152,6 +152,18 @@ const AddProduct = () => {
                         <div className="col-lg-8">
                             <form className="submit-recipe-form">
                                 <div className="form-group">
+                                    <label>Chọn danh mục</label>
+                                    <select className="form-control add-product-select-option col-md-12" 
+                                            name="filter-by"
+                                            value={category}
+                                            onChange={(e) => setCategory(e.target.value)}
+                                    >                                     
+                                        {categories.map((category) => (
+                                            <option value={category.name}>{category.name}</option>
+                                        ))}
+                                    </select>
+                                </div>                                
+                                <div className="form-group">
                                     <label>Tên sản phẩm</label>
                                     <input  type="text" 
                                             placeholder="Tên sản phẩm" 
@@ -163,18 +175,6 @@ const AddProduct = () => {
                                             required 
                                     />
                                     <div className="help-block with-errors"></div>
-                                </div>
-                                <div className="form-group">
-                                    <label>Chọn danh mục</label>
-                                    <select className="form-control add-product-select-option col-md-12" 
-                                            name="filter-by"
-                                            value={category}
-                                            onChange={(e) => setCategory(e.target.value)}
-                                    >                                     
-                                        {categories.map((category) => (
-                                            <option value={category.name}>{category.name}</option>
-                                        ))}
-                                    </select>
                                 </div>
                                 <div className="form-group">
                                     <label>Giá sản phẩm</label>

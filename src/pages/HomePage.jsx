@@ -12,17 +12,18 @@ const HomePage = () => {
     const homePageDataKey = process.env.REACT_APP_HOME_PAGE_DATA_KEY;
     const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
 
+    const homeData = sessionStorage.getItem(homePageDataKey);
+    const categoryData = sessionStorage.getItem(categoryKey);
+
     useEffect(() => {
 
         setLoading(true);
 
-        const homeData = sessionStorage.getItem(homePageDataKey);
-        const categoryData = sessionStorage.getItem(categoryKey);
+        const maybeFetchGeneralData = async () => {
 
-        if (categoryData) {
-            setCategories(JSON.parse(categoryData));
-        } else {
-            const fetchCategories = async () => {
+            if (categoryData) {
+                setCategories(JSON.parse(categoryData));
+            } else {
 
                 try {
                     const url = baseUrl + '/common/category';
@@ -34,33 +35,28 @@ const HomePage = () => {
                 } catch (error) {
                     setError("Không tải được trang web, vui lòng thử lại!");
                 }
-            };
-
-            fetchCategories();
-        }
-
-        if (homeData) {
-            setProductMap(JSON.parse(homeData));
-            setLoading(false);
-        } else {
-            const fetchProductMap = async () => {
+            }
+    
+            if (homeData) {
+                setProductMap(JSON.parse(homeData));
+            } else {
 
                 try {
                     const url = baseUrl + '/common/home';
                     const response = await axios.get(url);
+
                     const products = response.data;
-        
                     sessionStorage.setItem(homePageDataKey, JSON.stringify(products));
                     setProductMap(products);
                 } catch (error) {
                     setError("Không tải được trang web, vui lòng thử lại!");
-                } finally {
-                    setLoading(false);
                 }
-            };
+            }
 
-            fetchProductMap();
+            setLoading(false);
         }
+
+        maybeFetchGeneralData();
 
     }, []);
 
