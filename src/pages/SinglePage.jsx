@@ -1,6 +1,7 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {useLocation} from 'react-router-dom';
 import axios from 'axios';
+import { CommonDataContext } from '../components/CommonDataContext';
 
 const SinglePage = () => {
 
@@ -20,92 +21,71 @@ const SinglePage = () => {
 
     const currentDateTime = new Date().toLocaleDateString();
 
-    const homeData = sessionStorage.getItem(homePageDataKey);
+    const {commonProductMap, commonCategories, commonLoading, commonError} = useContext(CommonDataContext); 
 
     useEffect(() => {
 
-        setLoading(true);
+        if (!commonLoading && commonProductMap && commonCategories) {
 
-        const maybeFetchGeneralData = async () => {
-
-            let m_foodMap = null;
-            let m_singleFood = null;
-            let m_newFoods = [];
-
-            if (homeData) {
-                m_foodMap = JSON.parse(homeData)
-            } else {
-
-                try {
-                    const url = baseUrl + '/common/home';
-                    const response = await axios.get(url);
-
-                    m_foodMap = response.data;
-                    sessionStorage.setItem(homePageDataKey, JSON.stringify(m_foodMap));
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
+            setLoading(true);
+    
+            const maybeFetchGeneralData = async () => {
+    
+                let m_singleFood = null;
+                let m_newFoods = [];
+        
+                // Get new foods to show on
+                Object.entries(commonProductMap).forEach(([category, foods]) => {
+                    m_newFoods.push(...foods.slice(0, 1));
+                });
+                setNewFoods(m_newFoods);
+        
+                // Get single food
+                const foods = commonProductMap[category];
+                if (foods) {
+                    m_singleFood = foods.find(m_food => m_food.id == productId);
                 }
-            }
-    
-            // Get new foods to show on
-            Object.entries(m_foodMap).forEach(([category, foods]) => {
-                m_newFoods.push(...foods.slice(0, 1));
-            });
-            setNewFoods(m_newFoods);
-    
-            // Get single food
-            const foods = m_foodMap[category];
-            if (foods) {
-                m_singleFood = foods.find(m_food => m_food.id == productId);
-                // foods.forEach(food => {
-                //     if (food.id == productId) {
-                //         m_singleFood = food;
-                //     }
-                // })
-            }
-    
-            if (m_singleFood) {
-                setSingleFood(m_singleFood);
-            } else {
-
-                try {
-                    const url = baseUrl + '/common/single/product';
-                    const response = await axios.get(url, {
-                        params: {
-                            category: category,
-                            productId: productId
-                        }
-                    });
-
-                    m_singleFood = response.data;
+        
+                if (m_singleFood) {
                     setSingleFood(m_singleFood);
-                    const new_foodMap = {...m_foodMap, [category]: [m_singleFood]};
-                    sessionStorage.setItem(homePageDataKey, JSON.stringify(new_foodMap));
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
+                } else {
+    
+                    try {
+                        const url = baseUrl + '/common/single/product';
+                        const response = await axios.get(url, {
+                            params: {
+                                productId: productId
+                            }
+                        });
+    
+                        m_singleFood = response.data;
+                        setSingleFood(m_singleFood);
+                        const new_foodMap = {...commonProductMap, [category]: [m_singleFood]};
+                        sessionStorage.setItem(homePageDataKey, JSON.stringify(new_foodMap));
+                    } catch (error) {
+                        setError("Không tải được trang web, vui lòng thử lại!");
+                    }
                 }
-            }
+    
+                setLoading(false);
+            };
+    
+            maybeFetchGeneralData();
+        }
 
-            setLoading(false);
-        };
+    }, [commonProductMap, commonCategories, commonLoading]);
 
-        maybeFetchGeneralData();
-
-    }, []);
-
-    if (loading) {
+    if (loading || commonLoading) {
         return <div>Loading...</div>
     }
 
-    if (error) {
+    if (error || commonError) {
         return (
             <div>
-                <p style={{color: 'red'}}>Lỗi: {error}</p>
+                <p style={{color: 'red'}}>Lỗi: {error || commonError}</p>
             </div>
         );
     }
-
-    console.log("The saved single product: ", singleFood);
     
     return (
         <>

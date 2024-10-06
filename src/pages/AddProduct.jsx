@@ -1,5 +1,6 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useContext} from 'react';
 import axios from 'axios';
+import { CommonDataContext } from '../components/CommonDataContext';
 
 const AddProduct = () => {
 
@@ -8,58 +9,37 @@ const AddProduct = () => {
     const [price, setPrice] = useState('');
     const [category, setCategory] = useState('Signature');
     const [selectedImages, setSelectedImages] = useState([]);
-    const [categories, setCategories] = useState([]);
     const [userInfor, setUserInfor] = useState({});
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [errorSubmit, setErrorSubmit] = useState(null);
     const [successSubmit, setSuccessSubmit] = useState(null);
 
     const selectImagesRef = useRef(null);
 
-    const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
     const baseUrl = process.env.REACT_APP_SERVER_URL;
     const userInforKey = process.env.REACT_APP_USER_INFOR_KEY;
     const homePageDataKey = process.env.REACT_APP_HOME_PAGE_DATA_KEY;
 
+    const {commonCategories, commonLoading, commonError} = useContext(CommonDataContext);
+
     useEffect(() => {
 
-        setLoading(true);
+        if (!commonLoading && commonCategories) {
+            setLoading(true);
 
-        const userInforInSession = sessionStorage.getItem(userInforKey);
-        const userInforInLocal = localStorage.getItem(userInforKey);
-        const categoryData = sessionStorage.getItem(categoryKey);
-
-        if (userInforInLocal) {
-            setUserInfor(JSON.parse(userInforInLocal));
-        } else if (userInforInSession) {
-            setUserInfor(JSON.parse(userInforInSession));
-        }
-
-        if (categoryData) {
-            setCategories(JSON.parse(categoryData));
+            const userInforInSession = sessionStorage.getItem(userInforKey);
+            const userInforInLocal = localStorage.getItem(userInforKey);
+    
+            if (userInforInLocal) {
+                setUserInfor(JSON.parse(userInforInLocal));
+            } else if (userInforInSession) {
+                setUserInfor(JSON.parse(userInforInSession));
+            }
+    
             setLoading(false);
-        } else {
-            const fetchCaterogies = async () => {
-
-                try {
-                    const url = baseUrl + '/common/category';
-                    const response = await axios.post(url);
-                    const m_categories = response.data;
-        
-                    sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
-                    setCategories(m_categories);
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            fetchCaterogies();
         }
 
-    }, []);
+    }, [commonCategories, commonLoading]);
 
     const handleSelectImagesRef = (e) => {
         e.preventDefault();
@@ -115,14 +95,14 @@ const AddProduct = () => {
         }
     }
 
-    if (loading) {
+    if (loading || commonLoading) {
         return <div>Loading...</div>
     }
 
-    if (error) {
+    if (commonError) {
         return (
             <div>
-                <p style={{color: 'red'}}>Lỗi: {error}</p>
+                <p style={{color: 'red'}}>Lỗi: {commonError}</p>
             </div>
         );
     }
@@ -158,7 +138,7 @@ const AddProduct = () => {
                                             value={category}
                                             onChange={(e) => setCategory(e.target.value)}
                                     >                                     
-                                        {categories.map((category) => (
+                                        {commonCategories.map((category) => (
                                             <option value={category.name}>{category.name}</option>
                                         ))}
                                     </select>

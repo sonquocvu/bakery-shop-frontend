@@ -1,11 +1,11 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import axios from 'axios';
+import { CommonDataContext } from '../components/CommonDataContext';
 
 const DeleteProduct = () => {
 
     const [category, setCategory] = useState('Signature');
     const [product, setProduct] = useState([]);
-    const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
     const [userInfor, setUserInfor] = useState({});
     const [loading, setLoading] = useState(true);
@@ -13,63 +13,75 @@ const DeleteProduct = () => {
     const [errorDelete, setErrorDelete] = useState(null);
     const [successDelete, setSuccessDelete] = useState(null);
 
-    const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
     const baseUrl = process.env.REACT_APP_SERVER_URL;
     const userInforKey = process.env.REACT_APP_USER_INFOR_KEY;
     const homePageDataKey = process.env.REACT_APP_HOME_PAGE_DATA_KEY;
 
+    const {commonCategories, commonLoading, commonError} = useContext(CommonDataContext);
+
     useEffect(() => {
 
-        setLoading(true);
+        if (!commonLoading && commonCategories) {
 
-        const userInforInSession = sessionStorage.getItem(userInforKey);
-        const userInforInLocal = localStorage.getItem(userInforKey);
-        const categoryData = sessionStorage.getItem(categoryKey);
+            setLoading(true);
 
-        if (userInforInLocal) {
-            setUserInfor(JSON.parse(userInforInLocal));
-        } else if (userInforInSession) {
-            setUserInfor(JSON.parse(userInforInSession));
-        }
-
-        const maybeFetchGeneralData = async () => {
-
-            if (categoryData) {
-                setCategories(JSON.parse(categoryData));
-            } else {
-
-                try {
-                    const url = baseUrl + '/common/category';
-                    const response = await axios.post(url);
-
-                    const m_categories = response.data;
-                    sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
-                    setCategories(m_categories);
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
-                }
+            const userInforInSession = sessionStorage.getItem(userInforKey);
+            const userInforInLocal = localStorage.getItem(userInforKey);
+    
+            if (userInforInLocal) {
+                setUserInfor(JSON.parse(userInforInLocal));
+            } else if (userInforInSession) {
+                setUserInfor(JSON.parse(userInforInSession));
             }
     
-            try {
-                const url = baseUrl + '/common/products-name';
-                const response = await axios.get(url, {
-                    params: {
-                        categoryName: category
-                    }
-                });
+            const maybeFetchGeneralData = async () => {
+        
+                try {
+                    const url = baseUrl + '/common/products-name';
+                    const response = await axios.get(url, {
+                        params: {
+                            categoryName: category
+                        }
+                    });
+    
+                    const m_productNames = response.data;
+                    setProducts(m_productNames);
+                    setProduct(m_productNames[0]);
+                } catch (error) {
+                    setError("Không tải được dữ liệu, vui lòng làm mới trang web");
+                }
+    
+                setLoading(false);
+            };
+    
+            maybeFetchGeneralData();
+        }
 
-                const m_productNames = response.data;
-                setProducts(m_productNames);
-            } catch (error) {
-                setErrorDelete("Không tải được sản phẩm, vui lòng thử lại");
-            }
+    }, [commonCategories, commonLoading]);
 
+    const handleSelectCategory = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        const m_category = e.target.value;
+        setCategory(m_category);
+
+        try {
+            const url = baseUrl + '/common/products-name';
+            const response = await axios.get(url, {
+                params: {
+                    categoryName: m_category
+                }
+            });
+
+            const m_productNames = response.data;
+            setProducts(m_productNames);
+            setProduct(m_productNames[0]);
+        } catch (error) {
+            setErrorDelete("Không tải được sản phẩm, vui lòng thử lại");
+        } finally {
             setLoading(false);
-        };
-
-        maybeFetchGeneralData();
-
-    }, []);
+        }
+    }
 
     const handleDeleteProduct = async (e) => {
         e.preventDefault();
@@ -108,37 +120,14 @@ const DeleteProduct = () => {
         }
     }
 
-    const handleSelectCategory = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        const m_category = e.target.value;
-        setCategory(m_category);
-
-        try {
-            const url = baseUrl + '/common/products-name';
-            const response = await axios.get(url, {
-                params: {
-                    categoryName: m_category
-                }
-            });
-            const m_productsName = response.data;
-
-            setProducts(m_productsName);
-        } catch (error) {
-            setErrorDelete("Không tải được sản phẩm, vui lòng thử lại");
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    if (loading) {
+    if (loading || commonLoading) {
         return <div>Loading...</div>
     }
 
-    if (error) {
+    if (error || commonError) {
         return (
             <div>
-                <p style={{color: 'red'}}>Lỗi: {error}</p>
+                <p style={{color: 'red'}}>Lỗi: {error || commonError}</p>
             </div>
         );
     }
@@ -174,7 +163,7 @@ const DeleteProduct = () => {
                                             value={category}
                                             onChange={(e) => handleSelectCategory(e)}
                                     >                                     
-                                        {categories.map((category) => (
+                                        {commonCategories.map((category) => (
                                             <option value={category.name}>{category.name}</option>
                                         ))}
                                     </select>

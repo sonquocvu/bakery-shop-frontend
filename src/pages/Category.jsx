@@ -1,12 +1,12 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {useLocation} from 'react-router-dom';
 import axios from 'axios';
+import { CommonDataContext } from '../components/CommonDataContext';
 
 const Category = () => {
 
     const [allProducts, setAllProducts] = useState([]);
     const [productsPerPage, setProductsPerPage] = useState([]);
-    const [categories, setCategories] = useState([]);
     const [quantity, setQuantity] = useState(0);
     const [numProductsPerPage, setNumProductsPerPage] = useState(19);
     const [currentPage, setCurrentPage] = useState(1);
@@ -21,86 +21,57 @@ const Category = () => {
     const categoryName = params.get('category');
 
     const baseUrl = process.env.REACT_APP_SERVER_URL;
-    const homePageDataKey = process.env.REACT_APP_HOME_PAGE_DATA_KEY;
-    const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
     const shoppingCartKey = process.env.REACT_APP_SHOPPING_CART_KEY;
 
-    const homeData = sessionStorage.getItem(homePageDataKey);
-    const categoryData = sessionStorage.getItem(categoryKey);
+    const {commonProductMap, commonCategories, commonLoading, commonError} = useContext(CommonDataContext);   
 
     useEffect(() => {
-        setLoading(true);
 
-        const maybeFetchGeneralData = async () => {
+        if (!commonLoading && commonProductMap && commonCategories) {
 
-            const fetchProducts = async () => {
+            setLoading(true);
 
-                try {
-                    const url = baseUrl + '/common/category/product';
-                    const response = await axios.get(url, {
-                        params: {
-                            category: categoryName
-                        }
-                    });
+            const maybeFetchGeneralData = async () => {
     
-                    const m_allProductsOfCategory = response.data;                
-                    setAllProducts(m_allProductsOfCategory);
-                    setProductsPerPage(m_allProductsOfCategory.slice(0, numProductsPerPage));
-                    calculateNumOfPages(m_allProductsOfCategory.length);
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
+                let m_quantity = 0;
+                const m_category = commonCategories.find(cat => cat.name === categoryName);
+                if (m_category) {
+                    m_quantity = m_category.quantity;
+                    setQuantity(m_quantity);
                 }
-            };
-    
-            let m_categories = [];
-            let m_quantity = 0;
-    
-            if (categoryData) {       
-                m_categories = JSON.parse(categoryData);
-                setCategories(m_categories);
-            }  else {
-    
-                try {
-                    const url = baseUrl + '/common/category';
-                    const response = await axios.get(url);
-    
-                    m_categories = response.data;
-                    sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
-                    setCategories(m_categories);
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
-                }
-            }
-
-            const m_category = m_categories.find(cat => cat.name === categoryName);
-            if (m_category) {
-                m_quantity = m_category.quantity;
-                setQuantity(m_quantity);
-            }
-    
-            if (homeData) {
-                
-                const m_productsFromHomeData = JSON.parse(homeData);
-                const m_allProductsOfCategory = m_productsFromHomeData[categoryName];
-                
+        
+                const m_allProductsOfCategory = commonProductMap[categoryName];
                 if (m_allProductsOfCategory == null || m_allProductsOfCategory.length < m_quantity)
                 {
-                    fetchProducts();
+                    try {
+                        const url = baseUrl + '/common/category/product';
+                        const response = await axios.get(url, {
+                            params: {
+                                category: categoryName
+                            }
+                        });
+        
+                        const m_allProductsOfCategory = response.data;                
+                        setAllProducts(m_allProductsOfCategory);
+                        setProductsPerPage(m_allProductsOfCategory.slice(0, numProductsPerPage));
+                        calculateNumOfPages(m_allProductsOfCategory.length);
+                    } catch (error) {
+                        setError("Không tải được trang web, vui lòng thử lại!");
+                    }
+
                 } else {
                     setAllProducts(m_allProductsOfCategory);
                     setProductsPerPage(m_allProductsOfCategory.slice(0, numProductsPerPage));
                     calculateNumOfPages(m_allProductsOfCategory.length);
                 }
-            } else {
-                fetchProducts();
-            }
-
-            setLoading(false);
-        };
-
-        maybeFetchGeneralData();
+    
+                setLoading(false);
+            };
+    
+            maybeFetchGeneralData();
+        }
         
-    }, []);
+    }, [commonProductMap, commonCategories, commonLoading]);
 
     const handlePageNumber = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -139,14 +110,14 @@ const Category = () => {
         }, 1000);
     };
 
-    if (loading) {
+    if (loading || commonLoading) {
         return <div>Loading...</div>
     }
 
-    if (error) {
+    if (error || commonError) {
         return (
             <div>
-                <p style={{color: 'red'}}>Lỗi: {error}</p>
+                <p style={{color: 'red'}}>Lỗi: {error || commonError}</p>
             </div>
         );
     }
@@ -232,7 +203,7 @@ const Category = () => {
                                 </div>
                                 <div className="widget-categories">
                                     <ul>
-                                        {categories.map((category) => (
+                                        {commonCategories.map((category) => (
                                             <li>
                                                 <a href={`/category?category=${encodeURIComponent(category.name)}`}>{category.name}
                                                     <span>{category.quantity}</span>

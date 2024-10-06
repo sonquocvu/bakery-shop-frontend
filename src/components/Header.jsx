@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import axios from 'axios';
 import LoginForm from './LoginForm';
 import SearchButton from './SearchButton';
+import { CommonDataContext } from './CommonDataContext';
 
 const Header = () => {
 
-    const [categories, setCategories] = useState([]);
     const [userInfor, setUserInfor] = useState({});
     const [shoppingCart, setShoppingCart] = useState([]);
     const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
@@ -14,49 +14,31 @@ const Header = () => {
 
     const baseUrl = process.env.REACT_APP_SERVER_URL;
     const userInforKey = process.env.REACT_APP_USER_INFOR_KEY;
-    const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
     const shoppingCartKey = process.env.REACT_APP_SHOPPING_CART_KEY;
 
+    const {commonCategories, commonLoading, commonError} = useContext(CommonDataContext);
+
     useEffect(() => {
+        
+        if (!commonLoading && commonCategories) {
 
-        setLoading(true);
+            setLoading(true);
 
-        const userInforInSession = sessionStorage.getItem(userInforKey);
-        const userInforInLocal = localStorage.getItem(userInforKey);
-        const categoryData = sessionStorage.getItem(categoryKey);
-
-        if (userInforInLocal) {
-            setUserInfor(JSON.parse(userInforInLocal));
-            setIsUserAuthenticated(true);
-        } else if (userInforInSession) {
-            setUserInfor(JSON.parse(userInforInSession));
-            setIsUserAuthenticated(true);
+            const userInforInSession = sessionStorage.getItem(userInforKey);
+            const userInforInLocal = localStorage.getItem(userInforKey);
+    
+            if (userInforInLocal) {
+                setUserInfor(JSON.parse(userInforInLocal));
+                setIsUserAuthenticated(true);
+            } else if (userInforInSession) {
+                setUserInfor(JSON.parse(userInforInSession));
+                setIsUserAuthenticated(true);
+            }
+    
+            setLoading(false);
         }
 
-        const maybeFetchGeneralData = async () => {
-
-            if (categoryData) {
-                setCategories(JSON.parse(categoryData));
-            } else {
-
-                try {
-                    const url = baseUrl + '/common/category';
-                    const response = await axios.get(url);
-                    const m_categories = response.data;
-        
-                    sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
-                    setCategories(m_categories);
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
-                }
-            }
-
-            setLoading(false);
-        };
-
-        maybeFetchGeneralData();
-
-    }, []);
+    }, [commonCategories, commonLoading]);
 
     const handleLogout = async (event) => {
 
@@ -81,14 +63,16 @@ const Header = () => {
         localStorage.setItem(shoppingCartKey, JSON.stringify(newStoredShoppingCart));
     }
 
-    if (loading) {
-        return <div>Loading...</div>
+    if (loading || commonLoading) {
+        return (
+            <div>Loading...</div>
+        );
     }
 
-    if (error) {
+    if (error || commonError) {
         return (
             <div>
-                <p style={{color: 'red'}}>Lỗi: {error}</p>
+                <p style={{color: 'red'}}>Lỗi: {error || commonError}</p>
             </div>
         );
     }
@@ -111,7 +95,7 @@ const Header = () => {
                                         <li>
                                             <a href={`/category?category=${encodeURIComponent("Signature")}`}>Danh Mục</a>
                                             <ul className="dropdown-menu-col-1">
-                                                {categories.map((category) => (
+                                                {commonCategories.map((category) => (
                                                     <li>
                                                         <a href={`/category?category=${encodeURIComponent(category.name)}`}>{category.name}</a>
                                                     </li>

@@ -1,5 +1,6 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useContext} from 'react';
 import axios from 'axios';
+import { CommonDataContext } from '../components/CommonDataContext';
 
 const UpdateProduct = () => {
 
@@ -8,7 +9,6 @@ const UpdateProduct = () => {
     const [price, setPrice] = useState(0);
     const [category, setCategory] = useState('Signature');
     const [selectedImages, setSelectedImages] = useState([]);
-    const [categories, setCategories] = useState([]);
     const [userInfor, setUserInfor] = useState({});
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -18,64 +18,51 @@ const UpdateProduct = () => {
 
     const selectImagesRef = useRef(null);
 
-    const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
     const baseUrl = process.env.REACT_APP_SERVER_URL;
     const userInforKey = process.env.REACT_APP_USER_INFOR_KEY;
     const homePageDataKey = process.env.REACT_APP_HOME_PAGE_DATA_KEY;
 
+    const {commonCategories, commonLoading, commonError} = useContext(CommonDataContext);
+
     useEffect(() => {
 
-        setLoading(true);
+        if (!commonLoading && commonCategories) {
 
-        const userInforInSession = sessionStorage.getItem(userInforKey);
-        const userInforInLocal = localStorage.getItem(userInforKey);
-        const categoryData = sessionStorage.getItem(categoryKey);
+            setLoading(true);
 
-        if (userInforInLocal) {
-            setUserInfor(JSON.parse(userInforInLocal));
-        } else if (userInforInSession) {
-            setUserInfor(JSON.parse(userInforInSession));
-        }
-
-        const maybeFetchGeneralData = async () => {
-
-            if (categoryData) {
-                setCategories(JSON.parse(categoryData));
-            } else {
-
-                try {
-                    const url = baseUrl + '/common/category';
-                    const response = await axios.post(url);
-
-                    const m_categories = response.data;
-                    sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
-                    setCategories(m_categories);
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
-                }
+            const userInforInSession = sessionStorage.getItem(userInforKey);
+            const userInforInLocal = localStorage.getItem(userInforKey);
+    
+            if (userInforInLocal) {
+                setUserInfor(JSON.parse(userInforInLocal));
+            } else if (userInforInSession) {
+                setUserInfor(JSON.parse(userInforInSession));
             }
     
-            try {
-                const url = baseUrl + '/common/products-name';
-                const response = await axios.get(url, {
-                    params: {
-                        categoryName: category
-                    }
-                });
-                
-                const m_productsName = response.data;
-                setProducts(m_productsName);
-                setProductName(m_productsName[0]);
-            } catch (error) {
-                setErrorUpdate("Không tải được sản phẩm, vui lòng thử lại");
-            }
+            const maybeFetchGeneralData = async () => {
+        
+                try {
+                    const url = baseUrl + '/common/products-name';
+                    const response = await axios.get(url, {
+                        params: {
+                            categoryName: category
+                        }
+                    });
+                    
+                    const m_productsName = response.data;
+                    setProducts(m_productsName);
+                    setProductName(m_productsName[0]);
+                } catch (error) {
+                    setError("Không tải được dữ liệu, vui lòng làm mới trang web");
+                }
+    
+                setLoading(false);
+            };
+    
+            maybeFetchGeneralData();
+        }
 
-            setLoading(false);
-        };
-
-        maybeFetchGeneralData();
-
-    }, []);
+    }, [commonCategories, commonLoading]);
 
     const handleSelectImagesRef = (e) => {
         e.preventDefault();
@@ -154,14 +141,14 @@ const UpdateProduct = () => {
         }
     }
 
-    if (loading) {
+    if (loading || commonLoading) {
         return <div>Loading...</div>
     }
 
-    if (error) {
+    if (error || commonError) {
         return (
             <div>
-                <p style={{color: 'red'}}>Lỗi: {error}</p>
+                <p style={{color: 'red'}}>Lỗi: {error || commonError}</p>
             </div>
         );
     }
@@ -197,7 +184,7 @@ const UpdateProduct = () => {
                                             value={category}
                                             onChange={(e) => handleSelectCategory(e)}
                                     >                                     
-                                        {categories.map((category) => (
+                                        {commonCategories.map((category) => (
                                             <option value={category.name}>{category.name}</option>
                                         ))}
                                     </select>

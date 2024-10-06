@@ -1,92 +1,47 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import axios from 'axios';
+import { CommonDataContext } from '../components/CommonDataContext';
 
 const HomePage = () => {
 
-    const [productMap, setProductMap] = useState({});
-    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    const baseUrl = process.env.REACT_APP_SERVER_URL;
-    const homePageDataKey = process.env.REACT_APP_HOME_PAGE_DATA_KEY;
-    const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
-
-    const homeData = sessionStorage.getItem(homePageDataKey);
-    const categoryData = sessionStorage.getItem(categoryKey);
+    const {commonProductMap, commonCategories, commonLoading, commonError} = useContext(CommonDataContext);
 
     useEffect(() => {
 
-        setLoading(true);
-
-        const maybeFetchGeneralData = async () => {
-
-            if (categoryData) {
-                setCategories(JSON.parse(categoryData));
-            } else {
-
-                try {
-                    const url = baseUrl + '/common/category';
-                    const response = await axios.get(url);
-                    const m_categories = response.data;
-        
-                    sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
-                    setCategories(m_categories);
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
-                }
-            }
-    
-            if (homeData) {
-                setProductMap(JSON.parse(homeData));
-            } else {
-
-                try {
-                    const url = baseUrl + '/common/home';
-                    const response = await axios.get(url);
-
-                    const products = response.data;
-                    sessionStorage.setItem(homePageDataKey, JSON.stringify(products));
-                    setProductMap(products);
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
-                }
-            }
-
+        if (!commonLoading && commonProductMap && commonCategories) {
             setLoading(false);
         }
 
-        maybeFetchGeneralData();
+    }, [commonProductMap, commonCategories, commonLoading]);
 
-    }, []);
-
-    if (loading) {
+    if (loading || commonLoading) {
         return <div>Loading...</div>
     }
 
-    if (error) {
+    if (commonError) {
         return (
             <div>
-                <p style={{color: 'red'}}>Lỗi: {error}</p>
+                <p style={{color: 'red'}}>Lỗi: {commonError}</p>
             </div>
         );
     }
     
     const newFoods = [];
 
-    Object.entries(productMap).forEach(([category, foods]) => {
+    Object.entries(commonProductMap).forEach(([category, foods]) => {
         if (category != "Đồ uống") {
             const m_foods = foods.slice(0, 1);
             newFoods.push(...m_foods);
         }
     });
 
-    const signatures = productMap["Signature"].slice(0, 3);
-    const firstCustard = productMap["Bánh kem"][0];
-    const custards = productMap["Bánh kem"].slice(1, 7);
-    const breads = productMap["Bánh mì"].slice(0, 4);
-    const teas = productMap["Trà"].slice(0, 3);
-    
+    const signatures = commonProductMap["Signature"].slice(0, 3);
+    const firstCustard = commonProductMap["Bánh kem"][0];
+    const custards = commonProductMap["Bánh kem"].slice(1, 7); 
+    const breads = commonProductMap["Bánh mì"].slice(0, 4);
+    const teas = commonProductMap["Trà"].slice(0, 3);
+
     return (
         <>
             <section className="padding-bottom-18">
@@ -275,7 +230,7 @@ const HomePage = () => {
                                 </div>
                                 <div className="widget-categories">
                                     <ul>                                        
-                                        {categories.map((category) => (
+                                        {commonCategories.map((category) => (
                                             <li>
                                                 <a href={`/category?category=${encodeURIComponent(category.name)}`}>{category.name}<span>{category.quantity}</span></a>
                                             </li>

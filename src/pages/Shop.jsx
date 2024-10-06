@@ -1,12 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import NumberFormat from 'react-number-format';
+import React, {useState, useEffect, useContext} from 'react';
 import axios from 'axios';
+import { CommonDataContext } from '../components/CommonDataContext';
 
 const Shop = () => {
 
     const [allProducts, setAllProducts] = useState(null);
     const [productsPerPage, setProductsPerPage] = useState(null);
-    const [categories, setCategories] = useState(null);
     const [quantity, setQuantity] = useState(0);
     const [numProductsPerPage, setNumProductsPerPage] = useState(19);
     const [currentPage, setCurrentPage] = useState(1);
@@ -16,10 +15,53 @@ const Shop = () => {
     const [error, setError] = useState(null);
 
     const baseUrl = process.env.REACT_APP_SERVER_URL;
-    const categoryKey = process.env.REACT_APP_CATEGORY_KEY;
     const shoppingCartKey = process.env.REACT_APP_SHOPPING_CART_KEY;
 
-    const categoryData = sessionStorage.getItem(categoryKey);
+    const {commonProductMap, commonCategories, commonLoading, commonError} = useContext(CommonDataContext);
+
+    useEffect(() => {
+
+        if (!commonLoading && commonProductMap && commonCategories) {
+
+            setLoading(true);
+    
+            let numOfProducts = 0;
+            commonCategories.map((category) => {
+                numOfProducts += Number(category.quantity);
+            })
+            setQuantity(numOfProducts);
+    
+            let totalPages = Math.ceil(numOfProducts / numProductsPerPage);
+            let m_numOfPages = [];
+            for (let i = 1; i <= totalPages; i++) {
+                m_numOfPages.push(i);
+            }
+            setNumOfPages(m_numOfPages);
+    
+            fetchProducts(0, currentPage);  
+        }
+        
+    }, [commonProductMap, commonCategories, commonLoading]);
+
+    const handlePageNumber = (pageNumber) => {
+        setLoading(true);
+        setCurrentPage(pageNumber);
+
+        const page = parseInt(pageNumber / 10);
+        if (page != allProducts.page && (pageNumber % 10) != 0) {
+            fetchProducts(page, pageNumber);
+        } else {
+            let start = numProductsPerPage * ((pageNumber % 10) - 1);
+            let end = numProductsPerPage * (pageNumber % 10);
+            if ((pageNumber % 10) === 0) {
+                start = numProductsPerPage * 9;
+                end = numProductsPerPage * 10;
+            }
+            setProductsPerPage(allProducts.data.slice(start, end));
+        }
+
+        setLoading(false);
+    };
 
     const fetchProducts = async (page, pageNumber) => {
         try {
@@ -43,70 +85,7 @@ const Shop = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    useEffect(() => {
-        setLoading(true);
-
-        let m_categories = null;
-
-        if (categoryData) {
-            m_categories = JSON.parse(categoryData);
-            setCategories(m_categories);
-        }  else {
-            const fetchCategories = async () => {
-                try {
-                    const url = baseUrl + '/common/category';
-                    const response = await axios.get(url);
-                    m_categories = response.data;
-        
-                    sessionStorage.setItem(categoryKey, JSON.stringify(m_categories));
-                    setCategories(m_categories);
-                } catch (error) {
-                    setError("Không tải được trang web, vui lòng thử lại!");
-                    setLoading(false);
-                }
-            };
-
-            fetchCategories();
-        }
-
-        let numOfProducts = 0;
-        m_categories.map((category) => {
-            numOfProducts += Number(category.quantity);
-        })
-        setQuantity(numOfProducts);
-
-        let totalPages = Math.ceil(numOfProducts / numProductsPerPage);
-        let m_numOfPages = [];
-        for (let i = 1; i <= totalPages; i++) {
-            m_numOfPages.push(i);
-        }
-        setNumOfPages(m_numOfPages);
-
-        fetchProducts(0, currentPage);       
-        
-    }, []);
-
-    const handlePageNumber = (pageNumber) => {
-        setLoading(true);
-        setCurrentPage(pageNumber);
-
-        const page = parseInt(pageNumber / 10);
-        if (page != allProducts.page && (pageNumber % 10) != 0) {
-            fetchProducts(page, pageNumber);
-        } else {
-            let start = numProductsPerPage * ((pageNumber % 10) - 1);
-            let end = numProductsPerPage * (pageNumber % 10);
-            if ((pageNumber % 10) === 0) {
-                start = numProductsPerPage * 9;
-                end = numProductsPerPage * 10;
-            }
-            setProductsPerPage(allProducts.data.slice(start, end));
-        }
-
-        setLoading(false);
-    };
+    };    
 
     const handleAddProductToCart = (event, product) => {
         event.preventDefault();
@@ -129,14 +108,14 @@ const Shop = () => {
         }, 1000);
     };
 
-    if (loading) {
+    if (loading || commonLoading) {
         return <div>Loading...</div>
     }
 
-    if (error) {
+    if (error || commonError) {
         return (
             <div>
-                <p style={{color: 'red'}}>Lỗi: {error}</p>
+                <p style={{color: 'red'}}>Lỗi: {error || commonError}</p>
             </div>
         );
     }
@@ -222,7 +201,7 @@ const Shop = () => {
                                 </div>
                                 <div className="widget-categories">
                                     <ul>
-                                        {categories.map((category) => (
+                                        {commonCategories.map((category) => (
                                             <li>
                                                 <a href={`/category?category=${encodeURIComponent(category.name)}`}>{category.name}
                                                     <span>{category.quantity}</span>
