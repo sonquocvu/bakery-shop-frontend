@@ -13,6 +13,7 @@ import RegisterAdmin from './pages/RegisterAdmin';
 import AddProduct from './pages/AddProduct';
 import DeleteProduct from './pages/DeleteProduct';
 import UpdateProduct from './pages/UpdateProduct';
+import AddCategory from './pages/AddCategory';
 import MyCart from './pages/MyCart';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
         {path: PathConstants.ADD_PRODUCT, element: <AddProduct />},
         {path: PathConstants.DELETE_PRODUCT, element: <DeleteProduct />},
         {path: PathConstants.UPDATE_PRODUCT, element: <UpdateProduct />},
+        {path: PathConstants.ADD_CATEGORY, element: <AddCategory />},
         {path: PathConstants.CART, element: <MyCart />},
         {path: PathConstants.REGISTER_ADMIN, element: <RegisterAdmin />},
       ]

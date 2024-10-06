@@ -117,7 +117,10 @@ const Header = () => {
                                                     </li>
                                                     <li>
                                                         <a href="/update-product">Chỉnh sửa sản phẩm</a>
-                                                    </li>  
+                                                    </li>
+                                                    <li>
+                                                        <a href="/add-category">Thêm danh mục</a>
+                                                    </li>                                                      
                                                 </ul>                                                     
                                             </li>
                                         }

@@ -10,6 +10,7 @@ const PathConstants = {
     ADD_PRODUCT: '/add-product',
     DELETE_PRODUCT: '/delete-product',
     UPDATE_PRODUCT: '/update-product',
+    ADD_CATEGORY: '/add-category',
     CART: '/my-cart',
     REGISTER_ADMIN: '/adminpageforregisteranditshouldbelonglikethis',
 }
