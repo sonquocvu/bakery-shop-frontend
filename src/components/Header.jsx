@@ -141,7 +141,7 @@ const Header = () => {
                                                             </a>
                                                             <ul className="dropdown-user-col-1" id="dropdown-user">
                                                                 <li>
-                                                                    <a href="/Profile">
+                                                                    <a href="/profile">
                                                                         Hồ sơ</a>
                                                                 </li>
                                                                 <li>

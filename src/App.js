@@ -15,6 +15,7 @@ import DeleteProduct from './pages/DeleteProduct';
 import UpdateProduct from './pages/UpdateProduct';
 import AddCategory from './pages/AddCategory';
 import MyCart from './pages/MyCart';
+import Profile from './pages/Profile';
 
 function App() {
 
@@ -34,6 +35,7 @@ function App() {
         {path: PathConstants.DELETE_PRODUCT, element: <DeleteProduct />},
         {path: PathConstants.UPDATE_PRODUCT, element: <UpdateProduct />},
         {path: PathConstants.ADD_CATEGORY, element: <AddCategory />},
+        {path: PathConstants.PROFILE, element: <Profile />},
         {path: PathConstants.CART, element: <MyCart />},
         {path: PathConstants.REGISTER_ADMIN, element: <RegisterAdmin />},
       ]

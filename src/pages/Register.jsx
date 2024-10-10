@@ -93,17 +93,12 @@ const Register = () => {
         }
 
         try {
-            const response = await axios.post(
-                baseUrl + '/auth/register',
-                formData,
-                {
+            const url = baseUrl + '/auth/register';
+            const response = await axios.post(url, formData, {
                     headers: {
                         'Content-Type': 'application/json; charset=UTF-8',
                     },
-                }
-            );
-
-            setLoading(false);    
+                });
 
             if (response.status === 200) {
                 setIsRegistered(true);
@@ -112,7 +107,6 @@ const Register = () => {
                 setErrorMsg("email đã tồn tại, vui lòng đăng ký lại");
             }
         } catch (error) {
-            setLoading(false);
             setErrorMsg("Đăng ký không thành công do lỗi hệ thống, vui lòng đăng ký lại");
         } finally {
             setLoading(false);

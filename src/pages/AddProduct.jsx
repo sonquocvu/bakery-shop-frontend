@@ -76,7 +76,7 @@ const AddProduct = () => {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${userInfor.jwt}`
                 }
-            })
+            });
 
             if (response.status === 200) {
                 sessionStorage.removeItem(homePageDataKey);
